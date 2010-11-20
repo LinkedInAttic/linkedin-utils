@@ -14,8 +14,11 @@
  * the License.
  */
 
+apply plugin: 'org.linkedin.release'
+
+
 dependencies {
-  compile external.slf4j
-  testCompile external.junit
-  testRuntime external.slf4jLog4j
+  compile spec.external.slf4j
+  testCompile spec.external.junit
+  testRuntime spec.external.slf4jLog4j
 }

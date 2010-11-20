@@ -14,35 +14,38 @@
  * the License.
  */
 
-import org.apache.tools.ant.filters.ReplaceTokens
+buildscript {
+  repositories {
+    // in case you do not want to use mavenCentral at all
+    if(project.hasProperty('buildscript.repository'))
+    {
+      mavenRepo urls: new File(project."buildscript.repository").toURI()
+    }
+    else
+    {
+      mavenCentral()
+    }
+  }
 
-// allow overriding of properties based on user preference
-userConfig = getConfig("${System.getProperty('user.home')}/.org.linkedin.${project.name}.properties")
+  dependencies {
+    classpath 'org.linkedin:org.linkedin.gradle-plugins:1.0.0-SNAPSHOT'
+  }
+}
 
-// topBuildDir
-topBuildDir   = userConfig.top.build.dir   ?: "${rootDir}/out/build"
-topInstallDir = userConfig.top.install.dir ?: "${rootDir}/out/dist"
-topPublishDir = userConfig.top.publish.dir ?: "${rootDir}/out/repo"
+apply plugin: 'org.linkedin.userConfig'
+apply plugin: 'org.linkedin.spec'
 
-scmUrl = "git@github.com:linkedin/${project.name}.git"
+topBuildDir = userConfig.top.build.dir ?: "${rootDir}/out/build"
 
-groovyVersion = '1.7.5'
-slf4jVersion= '1.5.8' // to be compatible with grails 1.3.5
-
-// external dependencies versions
-external = [
-    ant: 'org.apache.ant:ant:1.8.1',
-    groovy: "org.codehaus.groovy:groovy:${groovyVersion}",
-    json: 'org.json:json:20090211',
-    junit: 'junit:junit:4.4',
-    log4j: 'log4j:log4j:1.2.16',
-    slf4j: "org.slf4j:slf4j-api:${slf4jVersion}",
-    slf4jLog4j: "org.slf4j:slf4j-log4j12:${slf4jVersion}",
-    slf4jJul: "org.slf4j:jul-to-slf4j:${slf4jVersion}"
-]
+apply plugin: 'org.linkedin.repository'
 
 allprojects {
+  buildscript {
+    allRepositories.buildscript.configure(repositories)
+  }
   apply plugin: 'idea'
+  group = spec.group
+  version = spec.version
 }
 
 // we use git
@@ -56,92 +59,10 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'maven'
 
-  repositories {
-    mavenCentral()
-  }
-
-  group = 'org.linkedin'
-  version = '1.0.0'
+  allRepositories.build.configure(repositories)
 
   sourceCompatibility = '1.6'
   targetCompatibility = '1.6'
 
   buildDir = "${topBuildDir}${project.path.replace(':','/')}".toString()
-
-  afterEvaluate { createUploadArchives(it) }
-}
-
-/**
- * Create the uploadArchives task.
- */
-void createUploadArchives(p)
-{
-  // the tasks and archives are only necessary when actually invoking the task!
-  if(p.gradle.startParameter.taskNames.find { it == 'uploadArchives'})
-  {
-    p.task([type: Jar, dependsOn: "classes"], 'sourcesJar') {
-        classifier = 'sources'
-        from p.sourceSets.main.allSource
-    }
-
-    p.task([type: Jar, dependsOn: "javadoc"], 'javadocJar') {
-        classifier = 'javadoc'
-        from p.javadoc.destinationDir
-    }
-
-    p.artifacts {
-        archives p.sourcesJar
-        archives p.javadocJar
-    }
-
-    if(p.plugins.hasPlugin('groovy'))
-    {
-      p.task([type: Jar, dependsOn: "groovydoc"], 'groovydocJar') {
-          classifier = 'groovydoc'
-          from p.groovydoc.destinationDir
-      }
-
-      p.artifacts {
-        archives p.groovydocJar
-      }
-    }
-  }
-
-  p.uploadArchives {
-    repositories.mavenDeployer {
-      repository(url: "file://localhost${topPublishDir}")
-      pom.whenConfigured { pomToConfigure ->
-        pomToConfigure.project {
-          licenses {
-            license {
-              name 'The Apache Software License, Version 2.0'
-              url 'http://www.apache.org/licenses/LICENSE-2.0'
-            }
-          }
-          scm {
-            connection "scm:git:${scmUrl}"
-            developerConnection "scm:git:${scmUrl}"
-            url scmUrl
-          }
-        }
-      }
-    }
-  }
-}
-
-def getConfig(def configFile)
-{
-  configFile = new File(configFile.toString())
-  if(configFile.exists())
-  {
-    logger.info "Loading user config [${configFile.toURL()}]"
-    def userProperties = new Properties()
-    configFile.withReader { userProperties.load(it) }
-    new ConfigSlurper().parse(userProperties)
-  }
-  else
-  {
-    logger.debug "No user config found [${configFile.toURL()}]"
-    return new ConfigObject()
-  }
 }
