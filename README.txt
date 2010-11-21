@@ -37,15 +37,12 @@ Contains a set of groovy utilities
 
 5. Build configuration
 ----------------------
-You can configure some of the build properties by creating the file
-~/.org.linkedin.linkedin-utils.properties
+The project uses the 'org.linkedin.userConfig' plugin and as such can be configured
+See https://github.com/linkedin/gradle-plugins/blob/master/README.txt for details
 
-Properties:
-# where the build goes (if you don't like to have it in the source tree)
-top.build.dir=xxx
-# where the software is installed (when running package-install)
-top.install.dir=xxx
-# where the software is published (locally) (when running uploadArchives)
-top.publish.dir=xxx
-
-(see build.gradle for how it is being used)
+Example:
+~/.userConfig.properties
+top.build.dir="/Volumes/Disk2/deployment/${userConfig.project.name}"
+top.install.dir="/export/content/${userConfig.project.name}"
+top.release.dir="/export/content/repositories/release"
+top.publish.dir="/export/content/repositories/publish"
