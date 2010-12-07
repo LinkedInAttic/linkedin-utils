@@ -41,7 +41,7 @@ public class DataMaskingInputStream extends FilterInputStream {
   private byte[] o_buffer;
   private int index; // index of the bytes to return from o_buffer
   private boolean finished;
-  private def keyValPattern = /(.*name=")([^"]*)(".*value=")([^"]*)(".*)/
+  private def keyValPattern = /(.*name="|.*key=")([^"]*)(".*value=")([^"]*)(".*)/
 
   public DataMaskingInputStream(InputStream is) {
     super (is)
