@@ -8,7 +8,7 @@ Compilation
 In order to compile the code you need
 
 * java 1.6
-* [gradle 0.9-rc2](http://www.gradle.org/)
+* [gradle 0.9](http://www.gradle.org/)
 
 At the top simply run
 
