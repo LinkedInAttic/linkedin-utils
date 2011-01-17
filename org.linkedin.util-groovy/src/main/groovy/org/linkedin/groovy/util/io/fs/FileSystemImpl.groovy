@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -171,14 +172,18 @@ def class FileSystemImpl implements FileSystem, Destroyable
 
   def withOutputStream(file, closure)
   {
-    file = toFile(file, true)
-    return file.withOutputStream(createClosureWithVariableParams(file, closure))
+    File localFile = toFile(file, true)
+    return safeOverwrite(localFile) { Resource localResource ->
+      localResource.file.withOutputStream(createClosureWithVariableParams(localFile, closure))
+    }
   }
 
   def withObjectOutputStream(file, closure)
   {
-    file = toFile(file, true)
-    return file.withObjectOutputStream(createClosureWithVariableParams(file, closure))
+    File localFile = toFile(file, true)
+    return safeOverwrite(localFile) { Resource localResource ->
+      localResource.file.withObjectOutputStream(createClosureWithVariableParams(localFile, closure))
+    }
   }
 
   def withInputStream(file, closure)
@@ -195,9 +200,32 @@ def class FileSystemImpl implements FileSystem, Destroyable
 
   def chmod(file, perm)
   {
-    file = toFile(file)
-    AntUtils.withBuilder { ant ->
-      ant.chmod(file: file, perm: perm)
+    Resource localResource = toResource(file)
+
+    File localFile = localResource?.file
+
+    if(localFile.exists())
+    {
+      AntUtils.withBuilder { ant ->
+        if(localFile.isDirectory())
+        {
+          ant.chmod(dir: localFile, perm: perm)
+        }
+        else
+        {
+          ant.chmod(file: localFile, perm: perm)
+        }
+      }
+    }
+
+    return localResource
+  }
+
+  @Override
+  def safeOverwrite(file, Closure closure)
+  {
+    GroovyIOUtils.safeOverwrite(toResource(file)?.file) { File newFile ->
+      closure(toResource(newFile))
     }
   }
 

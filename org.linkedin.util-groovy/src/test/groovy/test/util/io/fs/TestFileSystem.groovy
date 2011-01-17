@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +19,7 @@
 package test.util.io.fs
 
 import org.linkedin.groovy.util.io.fs.FileSystemImpl
+import org.linkedin.util.io.resource.Resource
 
 /**
  * Test for FileSystem class
@@ -287,5 +289,60 @@ class TestFileSystem extends GroovyTestCase
     fs.rmEmptyDirs(root)
     assertFalse(fs.toResource('/root/dir1/dir2/dir3').exists())
     assertFalse(root.exists())
+  }
+
+  void testSafeOverwrite()
+  {
+    Resource fileToCreate = fs.toResource('/dir/file1')
+
+    assertFalse(fileToCreate.exists())
+
+    Object expectedResult = new Object()
+
+    Object res = fs.safeOverwrite(fileToCreate) { Resource resource ->
+      assertNotSame(resource, fileToCreate)
+      fs.saveContent(resource, "abcd")
+      return expectedResult
+    }
+
+    assertEquals(expectedResult, res)
+    assertTrue(fileToCreate.exists())
+    assertEquals("abcd", fs.readContent(fileToCreate))
+
+    // there should be only 1 file in dir
+    assertEquals(1, fs.ls('/dir').size())
+
+    // now it should replace the file
+    res = fs.safeOverwrite(fileToCreate) { Resource resource ->
+      assertNotSame(resource, fileToCreate)
+      fs.saveContent(resource, "efgh")
+      return expectedResult
+    }
+
+    assertEquals(expectedResult, res)
+    assertTrue(fileToCreate.exists())
+    assertEquals("efgh", fs.readContent(fileToCreate))
+
+    // there should be only 1 file in dir
+    assertEquals(1, fs.ls('/dir').size())
+
+    fs.chmod('/dir', '500')
+
+    shouldFail(IOException) {
+      fs.safeOverwrite(fileToCreate) { Resource resource ->
+        assertNotSame(resource, fileToCreate)
+        fs.saveContent(resource, "ijkl")
+        return expectedResult
+      }
+    }
+
+    assertTrue(fileToCreate.exists())
+    assertEquals("efgh", fs.readContent(fileToCreate)) // not changed
+
+    // there should be only 1 file in dir
+    assertEquals(1, fs.ls('/dir').size())
+
+    // restore access rights
+    fs.chmod('/dir', '755')
   }
 }

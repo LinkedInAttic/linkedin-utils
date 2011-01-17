@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -111,6 +112,21 @@ interface FileSystem
   def withObjectInputStream(file, closure)
   
   def chmod(file, perm)
+
+  /**
+   * This convenient call takes a file you want to (over)write to and a closure. The closure is
+   * called back with another resource in the same folder that you can write to and then rename
+   * the file to the one you wanted. The fact that it is in the same folder ensures that the
+   * rename should be quick and not really require any copy thus is less likely to fail.
+   * If the rename fails it throws an exception, thus ensuring that if there was an original
+   * file it won't be in a partial state.
+   *
+   * @param file the final file where you want your output to be
+   * @param closure takes a <code>Resource</code> as a parameter that you should use
+   * @return whatever the closure returns
+   * @throws IOException if cannot rename the file
+   */
+  def safeOverwrite(file, Closure closure) throws IOException
 
   def findAll(dir, closure)
 
