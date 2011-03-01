@@ -193,6 +193,7 @@ public class LangUtils
   /**
    * Clone by serializing / deserializing... only works if the object is actually serializable!
    */
+  @SuppressWarnings("unchecked")
   public static <T extends Serializable> T deepClone(T serializable)
   {
     if(serializable == null)
@@ -201,6 +202,29 @@ public class LangUtils
     try
     {
       return (T) IOUtils.deserialize(IOUtils.serialize(serializable));
+    }
+    catch(IOException e)
+    {
+      throw new InternalException(e);
+    }
+    catch(ClassNotFoundException e)
+    {
+      throw new InternalException(e);
+    }
+  }
+
+  /**
+   * Clone by serializing / deserializing... only works if the object is actually serializable!
+   */
+  @SuppressWarnings("unchecked")
+  public static <T extends Serializable> T deepClone(T serializable, ClassLoader classLoader)
+  {
+    if(serializable == null)
+      return null;
+
+    try
+    {
+      return (T) IOUtils.deserialize(IOUtils.serialize(serializable), classLoader);
     }
     catch(IOException e)
     {
