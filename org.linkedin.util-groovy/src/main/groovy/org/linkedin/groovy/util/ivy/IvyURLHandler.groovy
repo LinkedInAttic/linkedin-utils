@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -79,17 +80,18 @@ class IvyURLConnection extends URLConnection
     AntUtils.withBuilder { ant ->
       def ivy = NamespaceBuilder.newInstance(ant, 'antlib:org.apache.ivy.ant')
 
-      File ivySettingsFile = GroovyIOUtils.toFile(_ivySettings)
-      ivy.settings(file: ivySettingsFile)
+      GroovyIOUtils.withFile(_ivySettings) { File ivySettingsFile ->
+        ivy.settings(file: ivySettingsFile)
 
-      ivy.cachefileset(setid: 'fetchFromIvy',
-                       conf: _ivyCoordinates.size() == 4 ? _ivyCoordinates[3] : 'default',
-                       inline: true,
-                       organisation: _ivyCoordinates[0],
-                       module: _ivyCoordinates[1],
-                       revision: _ivyCoordinates[2])
+        ivy.cachefileset(setid: 'fetchFromIvy',
+                         conf: _ivyCoordinates.size() == 4 ? _ivyCoordinates[3] : 'default',
+                         inline: true,
+                         organisation: _ivyCoordinates[0],
+                         module: _ivyCoordinates[1],
+                         revision: _ivyCoordinates[2])
 
-      _files = ant.project.getReference('fetchFromIvy').collect { it.file }
+        _files = ant.project.getReference('fetchFromIvy').collect { it.file }
+      }
     }
     connected = true
   }

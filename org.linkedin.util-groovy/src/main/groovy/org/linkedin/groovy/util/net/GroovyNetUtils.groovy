@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +17,11 @@
 
 
 package org.linkedin.groovy.util.net
+
+import com.sun.net.httpserver.HttpHandler
+import org.linkedin.util.url.URLBuilder
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpServer
 
 /**
  *  Contains utilities for net
@@ -118,5 +124,53 @@ class GroovyNetUtils
     }
 
     return filename
+  }
+
+  /**
+   * Equivalent to call {@link #withHttpEchoServer(int, Closure)} with 0 for the port
+   */
+  static def withHttpEchoServer(Closure closure)
+  {
+    withHttpEchoServer(0, closure)
+  }
+
+  /**
+   * Create a simple http server on localhost on the given port for the duration of the closure.
+   *
+   * The server will respond to http://localhost:<port>/echo?msg=xxxx by returning xxxx. This is
+   * mostly used for testing purposes!
+   *
+   * @param port the port on which to bind the server (0 means pick an ephemeral port)
+   * @param closure code to execute while the echo server is up and running. Parameter to the
+   * closure = port bound
+   * @return whatever the closure returns
+   */
+  static def withHttpEchoServer(int port, Closure closure)
+  {
+    InetSocketAddress address = new InetSocketAddress(port)
+
+    HttpServer server = HttpServer.create(address, 0);
+
+    def handler = { HttpExchange t ->
+      String response =
+        URLBuilder.createFromURL(t.requestURI.toString()).query.getParameter("msg") ?: "<no msg>"
+      t.sendResponseHeaders(200, response.length());
+      OutputStream os = t.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+    }
+
+    server.createContext("/echo", handler as HttpHandler);
+    server.setExecutor(null); // creates a default executor
+    server.start();
+
+    try
+    {
+      return closure(server.address.port)
+    }
+    finally
+    {
+      server.stop(1);
+    }
   }
 }

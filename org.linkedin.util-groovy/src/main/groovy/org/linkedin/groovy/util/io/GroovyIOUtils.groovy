@@ -1,6 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
- * Copyright (c) 2011 Yan Pujante
+ * Portions Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -37,16 +37,35 @@ class GroovyIOUtils extends IOUtils
    */
   static File toFile(s)
   {
+    toFile(s, null)
+  }
+
+  /**
+   * returns a file... handles <code>File</code>, URI, URL, string, <code>null</code>
+   * @param tempFolder if the file is not local, where to store it temporarilly (<code>null</code>
+   *                   means standard java vm temp folder)
+   */
+  static File toFile(s, File tempFolder)
+  {
+    (File) toFileWithTempStatus(s, tempFolder).file
+  }
+
+  /**
+   * handles <code>File</code>, URI, URL, string, <code>null</code>
+   * returns a map with <code>file</code> and <code>tempStatus</code> (<code>boolean</code>)
+   * @param tempFolder if the file is not local, where to store it temporarilly (<code>null</code>
+   *                   means standard java vm temp folder)
+   */
+  static Map toFileWithTempStatus(s, File tempFolder)
+  {
     if(s == null)
-      return null
+      return [file: null, tempStatus: false]
 
     if(s instanceof File)
-      return s
+      return [file: s, tempStatus: false]
 
     if(s instanceof Resource)
-    {
-      return s.getFile()
-    }
+      return [file: s.file, tempStatus: false]
 
     if(s instanceof String)
     {
@@ -62,19 +81,17 @@ class GroovyIOUtils extends IOUtils
 
       if(!uri?.scheme)
       {
-        return new File(s)
+        return [file: new File(s), tempStatus: false]
       }
     }
 
     URI uri = GroovyNetUtils.toURI(s)
 
     if(uri.scheme == 'file')
-      return new File(uri.path)
+      return [file: new File(uri.path), tempStatus: false]
 
     // this is not a local file => make it local...
-    File tempFile = File.createTempFile('toFile', '')
-    
-    tempFile.deleteOnExit()
+    File tempFile = AntUtils.tempFile(destdir: tempFolder, prefix: 'toFile')
 
     tempFile.withOutputStream { out ->
       uri.toURL().withInputStream { ins ->
@@ -82,7 +99,34 @@ class GroovyIOUtils extends IOUtils
       }
     }
 
-    return tempFile
+    return [file: tempFile, tempStatus: true]
+  }
+
+  /**
+   * Will convert <code>s</code> into a <code>File</code> object (if possible) and call
+   * the closure with it. Once the closure is over, if the file was not local (and as a result was
+   * copied locally for the duration of the closure) it will be deleted. As a result the closure
+   * should *not* store the <code>File</code> object around for later use or assume that the
+   * underlying file will still exist at a later point. Use {@link #toFile(Object)} instead if
+   * this is what you want to do.
+   * 
+   * @param s handles <code>File</code>, URI, URL, string, <code>null</code>
+   * @param closure will be called back with a <code>File</code> object (or <code>null</code>)
+   * @return whatever the closure returns
+   */
+  static def withFile(s, Closure closure)
+  {
+    Map m = toFileWithTempStatus(s, null)
+
+    try
+    {
+      return closure(m.file)
+    }
+    finally
+    {
+      if(m.tempStatus)
+        IOUtils.deleteFile((File) m.file)
+    }
   }
 
   /**
@@ -296,8 +340,6 @@ class GroovyIOUtils extends IOUtils
   {
     File tempFile = File.createTempFile('GroovyIOUtils.cat', '.txt')
 
-    tempFile.deleteOnExit()
-
     try
     {
       fetchContent(location, tempFile)
@@ -307,5 +349,9 @@ class GroovyIOUtils extends IOUtils
     {
       tempFile.delete()
     }
+  }
+
+  protected GroovyIOUtils()
+  {
   }
 }

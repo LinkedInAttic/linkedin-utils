@@ -1,6 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
- * Copyright (c) 2011 Yan Pujante
+ * Portions Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -241,6 +241,7 @@ def class FileSystemImpl implements FileSystem, Destroyable
    * @param args.prefix a prefix for the file (optional)
    * @param args.suffix a suffix for the file (optional)
    * @param args.deleteonexit if the temp file should be deleted on exit (default to
+   *                          <code>false</code>)
    * @param args.createParents if the parent directories should be created (default to
    * <code>true</code>)
    * @return a file (note that it is just a file object and that the actual file has *not* been
@@ -416,7 +417,7 @@ def class FileSystemImpl implements FileSystem, Destroyable
   private Resource toResource(file, boolean createParents)
   {
     // first convert into a file
-    file = GroovyIOUtils.toFile(file)
+    file = GroovyIOUtils.toFile(file, tmpRoot.file)
 
     if(file == null)
       throw new IOException('Unknown null file')

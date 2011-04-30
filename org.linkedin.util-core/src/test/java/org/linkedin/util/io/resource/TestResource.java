@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright (c) 2011 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,6 +26,8 @@ import org.linkedin.util.io.ram.RAMDirectory;
 import org.linkedin.util.io.resource.internal.InternalResource;
 import org.linkedin.util.io.resource.internal.InternalResourceProvider;
 import org.linkedin.util.io.resource.internal.ResourceProviderChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,6 +50,9 @@ import java.util.Set;
  */
 public class TestResource extends TestCase
 {
+  public static final String MODULE = TestResource.class.getName();
+  public static final Logger log = LoggerFactory.getLogger(MODULE);
+
   private final static int ROOT = 0;
   private final static int A = 1;
   private final static int B = 2;
@@ -73,12 +82,38 @@ public class TestResource extends TestCase
     "  </servlet-mapping>\n" +
     "</web-app>";
 
+  private final List<File> _deleteOnExit = new ArrayList<File>();
+
   /**
    * Constructor
    */
   public TestResource(String name)
   {
     super(name);
+  }
+
+  @Override
+  protected void tearDown() throws Exception
+  {
+    try
+    {
+      Collections.reverse(_deleteOnExit);
+      for(File file : _deleteOnExit)
+      {
+        try
+        {
+          IOUtils.deleteFile(file);
+        }
+        catch(IOException e)
+        {
+          log.warn("Exception [ignored] while deleting file " + file, e);
+        }
+      }
+    }
+    finally
+    {
+      super.tearDown();
+    }
   }
 
   protected String getWebXmlContent()
@@ -473,7 +508,7 @@ public class TestResource extends TestCase
 
   /**
    * Test for resource chain: we create 2 directory structures with some similarities and
-   * dissimilarities. root1 is the same as the one created in {@link #createDirectoryStructure}.
+   * dissimilarities. root1 is the same as the one created in {@link #createDirectoryStructure2(File)}
    *
    * <pre>
    * root2/
@@ -1108,9 +1143,11 @@ public class TestResource extends TestCase
    * @return the temp dir
    * @throws IOException if there is a problem
    */
-  public static File createTempDirectory(String namespace, String name) throws IOException
+  public File createTempDirectory(String namespace, String name) throws IOException
   {
-    return IOUtils.createTempDirectory(namespace, name);
+    File tempDirectory = IOUtils.createTempDirectory(namespace, name);
+    _deleteOnExit.add(tempDirectory.getParentFile());
+    return tempDirectory;
   }
 
   /**
@@ -1227,7 +1264,7 @@ public class TestResource extends TestCase
    * @throws IOException
    * @throws InterruptedException
    */
-  public static File createJarFile(String namespace, File root)
+  public File createJarFile(String namespace, File root)
     throws IOException, InterruptedException
   {
     File jarDirectory = createTempDirectory(namespace, root.getName() + "_jar");
