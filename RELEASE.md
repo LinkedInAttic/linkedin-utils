@@ -1,3 +1,9 @@
+1.4.0 (2011/04/30)
+------------------
+* fixed [bug #1](https://github.com/linkedin/linkedin-utils/issues/1): _GroovyIOUtils.cat leaks memory_
+
+  revisited several concepts dealing with the creation of temporary files 
+
 1.3.0 (2011/01/17)
 ------------------
 * fixed `FileSystemImpl.chmod` to handle directories properly
