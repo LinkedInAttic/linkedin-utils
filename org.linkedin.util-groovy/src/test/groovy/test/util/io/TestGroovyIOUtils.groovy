@@ -89,4 +89,78 @@ public class TestGroovyIOUtils extends GroovyTestCase
       }
     }
   }
+
+  /**
+   * Verifys that testSafeOverwrite properly works
+   */
+  public void testSafeOverwrite()
+  {
+    FileSystemImpl.createTempFileSystem { FileSystem fs ->
+      File root = fs.root.file
+
+      File tmpFile = null
+      GroovyIOUtils.safeOverwrite(new File(root, "foo.txt")) { File f ->
+        tmpFile = f
+
+        // should be a non existent file
+        assertFalse(f.exists())
+
+        // should be in the same folder as 'foo.txt'
+        assertEquals(root, f.parentFile)
+        assertTrue(f.name.startsWith('++tmp.'))
+        assertTrue(f.name.endsWith('.tmp++'))
+
+        f.text = "abcd"
+      }
+      // after the call the file should be deleted
+      assertFalse(tmpFile.exists())
+
+      // the file foo.txt should have been created
+      assertEquals("abcd", new File(root, "foo.txt").text)
+
+      // error cases
+      File foo2 = new File(root, "foo2.txt")
+      foo2.text = 'defg'
+
+      assertEquals("forcing: klmn", shouldFail(Exception.class) {
+        GroovyIOUtils.safeOverwrite(foo2) { File f ->
+          tmpFile = f
+          f.text = 'klmn'
+          throw new Exception('forcing: klmn')
+        }
+      })
+
+      // after the call the file should be deleted
+      assertFalse(tmpFile.exists())
+
+      // the original file should be the same
+      assertEquals('defg', foo2.text)
+
+      // if file is never written, it means the original should not exist
+      GroovyIOUtils.safeOverwrite(foo2) { File f ->
+        tmpFile = f
+        // don't do anything with f
+      }
+
+      // after the call the file should be deleted
+      assertFalse(tmpFile.exists())
+
+      // the original file should be the same
+      assertEquals('defg', foo2.text)
+
+      // now test for factory
+      GroovyIOUtils.safeOverwrite(foo2, {File f -> new File(f.parentFile, "lolo")}) { File f ->
+        tmpFile = f
+        assertEquals(new File(root, 'lolo'), f)
+        f.text = 'hijk'
+      }
+
+      // after the call the file should be deleted
+      assertFalse(tmpFile.exists())
+
+      // the original file should have been updated
+      assertEquals('hijk', foo2.text)
+    }
+  }
+
 }

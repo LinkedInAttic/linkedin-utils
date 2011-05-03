@@ -24,6 +24,7 @@ import org.linkedin.util.clock.Clock
 import org.linkedin.util.clock.SystemClock
 import org.linkedin.util.annotations.Initializable
 import org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils
+import org.linkedin.groovy.util.lang.GroovyLangUtils
 
 /**
  * Represents the state machine (states, transitions and action to take on each)
@@ -491,13 +492,8 @@ def class StateMachineImpl implements StateMachine
       def newState = getState()
       if(oldState != newState)
       {
-        try
-        {
+        GroovyLangUtils.noException {
           _stateChangeListener.onStateChange(oldState, newState)
-        }
-        catch(Throwable th)
-        {
-          log.warn("Exception while calling the listener... (ignored)", th)
         }
       }
     }

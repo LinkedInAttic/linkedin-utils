@@ -23,6 +23,7 @@ import org.linkedin.util.io.IOUtils
 import org.linkedin.util.io.PathUtils
 import org.linkedin.groovy.util.net.GroovyNetUtils
 import org.linkedin.groovy.util.ant.AntUtils
+import org.linkedin.groovy.util.lang.GroovyLangUtils
 
 /**
  * IO related utilities
@@ -31,7 +32,6 @@ import org.linkedin.groovy.util.ant.AntUtils
  */
 class GroovyIOUtils extends IOUtils
 {
-
   /**
    * returns a file... handles <code>File</code>, URI, URL, string, <code>null</code>
    */
@@ -252,31 +252,64 @@ class GroovyIOUtils extends IOUtils
    * throws an exception, thus ensuring that if there was an original file it won't be in a partial
    * state.
    *
+   * Note that this method automatically creates the parent folders if they don't exist.
+   *
    * @param toFile the final file where you want your output to be
    * @param closure takes a <code>File</code> as a parameter that you should use
    * @return whatever the closure returns
    */
   static def safeOverwrite(File toFile, Closure closure)
   {
+    safeOverwrite(toFile,
+                  { File f ->
+                    new File(f.parentFile,
+                             "++tmp.${f.name}.${UUID.randomUUID().toString()}.tmp++")},
+                  closure)
+  }
+
+  /**
+   * This variant takes a <code>tempFileFactory</code> if you want to control precisely where
+   * and how the temporary file is created (note that if the tempoary file is not created in the
+   * same folder as <code>toFile</code> then the rename operation may actually be a copy/delete
+   * instead of just a rename thus defeating the purpose of this method!)
+   *
+   * @param toFile the final file where you want your output to be
+   * @param tempFileFactory closure which takes <code>toFile</code> as an argument and returns
+   *        a temporary file
+   * @param closure takes a <code>File</code> as a parameter that you should use
+   * @return whatever the closure returns
+   */
+  static def safeOverwrite(File toFile, Closure tempFileFactory, Closure closure)
+  {
     if(toFile == null)
       return null
 
-    File dir = mkdirs(toFile.parentFile)
+    mkdirs(toFile.parentFile)
 
-    File newFile = new File(dir, "${toFile.name}.${UUID.randomUUID().toString()}")
+    File newFile = tempFileFactory(toFile)
 
-    def res = closure(newFile)
-
-    if(!newFile.renameTo(toFile))
+    try
     {
-      // somehow the rename operation did not work => delete new file and throw an exception
-      // thus effectively leaving the file system in the same state as when the method was
-      // called
-      newFile.delete()
-      throw new IOException("Unable to rename ${newFile} to ${toFile}")
-    }
+      def res = closure(newFile)
 
-    return res
+      if(newFile.exists() && !newFile.renameTo(toFile))
+      {
+        // somehow the rename operation did not work => delete new file (will happen in the finally)
+        // and throw an exception thus effectively leaving the file system in the same state as
+        // when the method was called
+        throw new IOException("Unable to rename ${newFile} to ${toFile}")
+      }
+
+      return res
+    }
+    finally
+    {
+      // always deleting the newFile in the finally ensuring that the filesystem remain in
+      // the same state as when enterred
+      GroovyLangUtils.noException {
+        deleteFile(newFile)
+      }
+    }
   }
 
   /**
