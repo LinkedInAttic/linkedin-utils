@@ -1,3 +1,9 @@
+1.5.0 (2011/05/03)
+------------------
+* made `safeOverwrite` more robust
+* added test for `safeOverwrite`
+* added `GroovyLanUtils.noException` convenient call
+
 1.4.0 (2011/04/30)
 ------------------
 * fixed [bug #1](https://github.com/linkedin/linkedin-utils/issues/1): _GroovyIOUtils.cat leaks memory_
