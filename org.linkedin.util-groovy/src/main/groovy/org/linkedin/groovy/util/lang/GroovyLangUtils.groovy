@@ -16,7 +16,6 @@
 package org.linkedin.groovy.util.lang
 
 import org.linkedin.util.lang.LangUtils
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
@@ -24,7 +23,10 @@ import org.slf4j.LoggerFactory
 public class GroovyLangUtils extends LangUtils
 {
   public static final String MODULE = GroovyLangUtils.class.getName();
-  public static final Logger log = LoggerFactory.getLogger(MODULE);
+
+  // Implementation note: this is not the usual pattern but for testing reasons this needs
+  // to be declared this way
+  public static def log = LoggerFactory.getLogger(MODULE);
 
   /**
    * Returned by {@link #noException(Closure)} when an exception happens
@@ -46,6 +48,25 @@ public class GroovyLangUtils extends LangUtils
    */
   static def noException(Closure closure)
   {
+    noExceptionWithValueOnException(NOEXCEPTION_ERROR, closure)
+  }
+
+  /**
+   * The closure will be executed and no exception will ever be thrown. The normal usage of this
+   * method is from a finally block. It is very dangerous to execute some code in a finally block
+   * that throws an exception because it will mask the original exception if there was one.
+   *
+   * This method will make all possible attemps to log the error in the {@link #log} first (warning
+   * will contain the message of the exception, and debug will contain the full stack trace), and if
+   * it fails it will try <code>System.err</code>, and if this fails as well then there won't be
+   * any message logged.
+   *
+   * @param valueOnException return value when exception
+   * @param closure
+   * @return whatever the closure returns or <code>valueOnException</code> if exception
+   */
+  static def noExceptionWithValueOnException(Object valueOnException, Closure closure)
+  {
     try
     {
       return closure()
@@ -54,7 +75,7 @@ public class GroovyLangUtils extends LangUtils
     {
       try
       {
-        log.warn("Detected unexpected exception [ignored]: ${t.message}")
+        log.warn("Detected unexpected exception [ignored]: ${t.class.name}: ${t.message}")
         if(log.isDebugEnabled())
           log.debug("Detected unexpected exception [ignored]", t)
       }
@@ -73,6 +94,77 @@ public class GroovyLangUtils extends LangUtils
       }
     }
 
-    return NOEXCEPTION_ERROR
+    return valueOnException
+  }
+
+  /**
+   * The closure will be executed and no exception will ever be thrown. The normal usage of this
+   * method is from a finally block. It is very dangerous to execute some code in a finally block
+   * that throws an exception because it will mask the original exception if there was one.
+   *
+   * This method will make all possible attemps to log the error in the {@link #log} first (warning
+   * will contain the message of the exception, and debug will contain the full stack trace), and if
+   * it fails it will try <code>System.err</code>, and if this fails as well then there won't be
+   * any message logged.
+   *
+   * @param msg to display in the warning ({@link Object#toString()} will be used for rendering)
+   * @param closure
+   * @return whatever the closure returns or {@link #NOEXCEPTION_ERROR} if exception
+   */
+  static def noExceptionWithMessage(Object msg, Closure closure)
+  {
+    noException(msg, NOEXCEPTION_ERROR, closure)
+  }
+
+  /**
+   * The closure will be executed and no exception will ever be thrown. The normal usage of this
+   * method is from a finally block. It is very dangerous to execute some code in a finally block
+   * that throws an exception because it will mask the original exception if there was one.
+   *
+   * This method will make all possible attemps to log the error in the {@link #log} first (warning
+   * will contain the message of the exception, and debug will contain the full stack trace), and if
+   * it fails it will try <code>System.err</code>, and if this fails as well then there won't be
+   * any message logged.
+   *
+   * @param msg to display in the warning ({@link Object#toString()} will be used for rendering)
+   * @param valueOnException return value when exception
+   * @param closure
+   * @return whatever the closure returns or <code>valueOnException</code> if exception
+   */
+  static def noException(Object msg, Object valueOnException, Closure closure)
+  {
+    if(msg == null)
+      return noExceptionWithValueOnException(valueOnException, closure)
+
+    try
+    {
+      return closure()
+    }
+    catch(Throwable t)
+    {
+      try
+      {
+        def details = noExceptionWithValueOnException(" ") { " [${msg.toString()}] " }
+        
+        log.warn("Detected unexpected exception${details}[ignored]: ${t.class.name}: ${t.message}")
+        if(log.isDebugEnabled())
+          log.debug("Detected unexpected exception${details}[ignored]", t)
+      }
+      catch (Throwable t2)
+      {
+        try
+        {
+          System.err.println("Error detected while logging output.. trying System.err")
+          t.printStackTrace(System.err)
+          t2.printStackTrace(System.err)
+        }
+        catch (Throwable t3)
+        {
+          // this is desperate.. there is really nothing we can do
+        }
+      }
+    }
+
+    return valueOnException
   }
 }

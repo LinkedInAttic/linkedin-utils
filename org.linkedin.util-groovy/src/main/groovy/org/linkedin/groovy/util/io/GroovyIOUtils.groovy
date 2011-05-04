@@ -306,7 +306,7 @@ class GroovyIOUtils extends IOUtils
     {
       // always deleting the newFile in the finally ensuring that the filesystem remain in
       // the same state as when enterred
-      GroovyLangUtils.noException {
+      GroovyLangUtils.noExceptionWithMessage(toFile) {
         deleteFile(newFile)
       }
     }
