@@ -1,3 +1,7 @@
+1.6.0 (2011/05/04)
+------------------
+* added more flavors of `noException` method + testing
+
 1.5.0 (2011/05/03)
 ------------------
 * made `safeOverwrite` more robust
