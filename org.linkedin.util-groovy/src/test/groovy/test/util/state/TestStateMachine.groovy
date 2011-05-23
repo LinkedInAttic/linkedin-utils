@@ -315,6 +315,7 @@ def class TestStateMachine extends GroovyTestCase
     sm.forceChangeState(null, e)
     checkState([currentState: 'installed', error: e])
     assertEquals(4, states.size())
+    assertEquals("e1", shouldFail(Exception.class) { sm.waitForState('installed', null)})
 
     sm.forceChangeState('running', null)
     checkState([currentState: 'running'])
@@ -353,6 +354,10 @@ def class TestStateMachine extends GroovyTestCase
     sm.forceChangeState('installed', null)
     checkState([currentState: 'installed'])
     assertEquals(8, states.size())
+
+    sm.forceChangeState('installed', 'this is an error')
+    checkState([currentState: 'installed', error: 'this is an error'])
+    assertEquals('state machine in error: [this is an error]', shouldFail(IllegalStateException) { sm.waitForState('installed', null) } )
   }
 
   private def checkState(state)

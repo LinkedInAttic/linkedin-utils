@@ -306,7 +306,7 @@ def class StateMachineImpl implements StateMachine
       GroovyConcurrentUtils.awaitFor(clock, timeout, lock) {
         // this code is synchronized (see awaitFor documentation!)
         if(_error)
-          throw _error;
+          throwError(_error);
 
         return !_transitionState && _currentState == state
       }
@@ -317,6 +317,14 @@ def class StateMachineImpl implements StateMachine
     }
 
     return true
+  }
+
+  private void throwError(errorToThrow)
+  {
+    if(errorToThrow instanceof Throwable)
+      throw errorToThrow
+    else
+      throw new IllegalStateException("state machine in error: [${errorToThrow}]")
   }
 
   private def doExecute(closure)
