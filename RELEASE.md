@@ -1,3 +1,7 @@
+1.6.1 (2011/05/23)
+------------------
+* fixed [bug #2](https://github.com/linkedin/linkedin-utils/issues/2): _ClassCastException when error is a String_
+
 1.6.0 (2011/05/04)
 ------------------
 * added more flavors of `noException` method + testing
