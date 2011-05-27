@@ -1,3 +1,7 @@
+1.6.2 (2011/05/27)
+------------------
+* fixed [bug #3](https://github.com/linkedin/linkedin-utils/issues/3): _IvyURLHandler is not thread safe_
+
 1.6.1 (2011/05/23)
 ------------------
 * fixed [bug #2](https://github.com/linkedin/linkedin-utils/issues/2): _ClassCastException when error is a String_

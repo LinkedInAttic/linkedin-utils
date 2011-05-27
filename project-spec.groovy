@@ -18,7 +18,7 @@
 spec = [
     name: 'linkedin-utils',
     group: 'org.linkedin',
-    version: '1.6.1',
+    version: '1.6.2',
 
     versions: [
       groovy: '1.7.5',
