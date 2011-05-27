@@ -29,7 +29,6 @@ import org.linkedin.groovy.util.ant.AntUtils
 class IvyURLHandler extends URLStreamHandler
 {
   private final def _defaultIvySettings
-  private def _ivyCoordinates
 
   IvyURLHandler(defaultIvySettings)
   {
@@ -38,7 +37,8 @@ class IvyURLHandler extends URLStreamHandler
 
   protected URLConnection openConnection(URL url)
   {
-    return new IvyURLConnection(url, _defaultIvySettings, _ivyCoordinates);
+    def ivyCoordinates = PathUtils.removeLeadingSlash(url.path).split('/')
+    return new IvyURLConnection(url, _defaultIvySettings, ivyCoordinates);
   }
 
   protected void parseURL(URL u, String spec, int start, int limit)
@@ -51,8 +51,8 @@ class IvyURLHandler extends URLStreamHandler
     if(u.getQuery())
       throw new IllegalArgumentException("no query string is allowed")
 
-    _ivyCoordinates = PathUtils.removeLeadingSlash(u.path).split('/')
-    if(_ivyCoordinates.size() < 3 || _ivyCoordinates.size() > 4)
+    def ivyCoordinates = PathUtils.removeLeadingSlash(u.path).split('/')
+    if(ivyCoordinates.size() < 3 || ivyCoordinates.size() > 4)
       throw new IllegalArgumentException("Bad ivy coordinates: ${u}")
   }
 }
