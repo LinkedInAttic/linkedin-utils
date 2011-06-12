@@ -1,3 +1,7 @@
+1.7.0 (2011/06/12)
+------------------
+* added notions of depth and distance to state machine
+
 1.6.2 (2011/05/27)
 ------------------
 * fixed [bug #3](https://github.com/linkedin/linkedin-utils/issues/3): _IvyURLHandler is not thread safe_
