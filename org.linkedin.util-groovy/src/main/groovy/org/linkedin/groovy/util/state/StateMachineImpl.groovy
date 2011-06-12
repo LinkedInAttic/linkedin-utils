@@ -25,6 +25,7 @@ import org.linkedin.util.clock.SystemClock
 import org.linkedin.util.annotations.Initializable
 import org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils
 import org.linkedin.groovy.util.lang.GroovyLangUtils
+import org.linkedin.util.lang.LangUtils
 
 /**
  * Represents the state machine (states, transitions and action to take on each)
@@ -50,7 +51,9 @@ def class StateMachineImpl implements StateMachine
   @Initializable
   Clock clock = SystemClock.INSTANCE
 
-  private final def _transitions
+  private final Map<String, Collection<Map<String, String>>> _transitions
+  private final Map<String, Integer> _depths
+  private final def _shortestPathsCache = [:]
   private StateChangeListener _stateChangeListener
   private volatile def _currentState = NONE
   private volatile def _transitionAction = null
@@ -65,13 +68,24 @@ def class StateMachineImpl implements StateMachine
     if(!args.transitions)
       throw new IllegalArgumentException("missing transitions")
 
-    _transitions =  args.transitions
+    _transitions = LangUtils.<Map<String, Collection<Map<String, String>>>>deepClone(args.transitions)
     _stateChangeListener = args.stateChangeListener
     _currentState = args.currentState ?: NONE
     _transitionAction = args.transitionAction
     _transitionState = args.transitionState
     _error = args.error
+    _depths = [:]
+    _transitions.keySet().each { state ->
+      _depths[state] = computeDepth(state)
+    }
     lock = args.lock ?: new Object()
+  }
+
+  private int computeDepth(state)
+  {
+    findPaths(NONE, state).min { c1, c2 ->
+      return c1.size - c2.size
+    }.size()
   }
 
   /**
@@ -94,13 +108,6 @@ def class StateMachineImpl implements StateMachine
   def getAvailableStates()
   {
     return _transitions.collect { k, v -> k}
-//    def states = new LinkedHashSet(_transitions.keySet())
-//
-//    _transitions.values().each { transition ->
-//      states.addAll(transition.to)
-//    }
-//
-//    return states
   }
 
   def getAvailableTransitions()
@@ -150,8 +157,34 @@ def class StateMachineImpl implements StateMachine
 
   def findShortestPath(fromState, toState)
   {
-    return findPaths(fromState, toState).min { c1, c2 ->
-      return c1.size - c2.size
+    def key = [fromState, toState]
+
+    synchronized(_shortestPathsCache)
+    {
+      def res = _shortestPathsCache[key]
+      if(res != null)
+      {
+        return res
+      }
+      else
+      {
+        def paths = findPaths(fromState, toState)
+        // keep the path of minimum size
+        paths = new TreeMap(paths.groupBy { it.size() }).values().iterator().next()
+        if(!paths)
+          return []
+        if(paths.size() > 1)
+        {
+          int toDepth = _depths[toState]
+          paths = paths.groupBy { path ->
+            path.to.sum { Math.abs(_depths[it] - toDepth) }
+          }
+          paths = new TreeMap(paths).values().iterator().next()
+        }
+        res = paths[0]
+        _shortestPathsCache[key] = res
+      }
+      return res
     }
   }
 
@@ -192,6 +225,29 @@ def class StateMachineImpl implements StateMachine
   def getTransitions()
   {
     return _transitions
+  }
+
+  @Override
+  int getDepth()
+  {
+    return getDepth(currentState)
+  }
+
+  @Override
+  int getDepth(state)
+  {
+    if(!_depths.containsKey(state))
+      throw new IllegalArgumentException("${state} is not a valid state")
+    return _depths[state]
+  }
+
+  @Override
+  int getDistance(fromState, toState)
+  {
+    int distance = findShortestPath(fromState, toState).size()
+    if(getDepth(fromState) > getDepth(toState))
+      distance = -distance;
+    return distance
   }
 
   /**

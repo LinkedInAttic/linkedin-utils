@@ -48,6 +48,25 @@ def interface StateMachine
   def getTransitions()
 
   /**
+   * @return the current depth of the state machine (depth is the number of steps to go from
+   * {@link #NONE} to {@link #getCurrentState())
+   */
+  int getDepth()
+
+  /**
+   * @param state which state to get the depth of
+   * @return the depth of the state or in other words <code>getDistance(NONE, state)</code>
+   */
+  int getDepth(state)
+
+  /**
+   * @return the distance between the 2 states (the number of steps to go from
+   * <code>fromState</code> to <code>toState</code>). The distance will be negative if
+   * <code>getDepth(fromState)</code> is greater than <code>getDepth(toState)</code>!
+   */
+  int getDistance(fromState, toState)
+
+  /**
    * Execute the action: sets the state machine in transition state, execute the closure and then
    * move to the final state. All this provided that the state transition and current state
    * is authorizing the action. This call is a blocking call!

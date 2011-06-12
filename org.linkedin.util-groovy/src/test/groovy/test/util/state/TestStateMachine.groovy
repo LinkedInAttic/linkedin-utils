@@ -56,6 +56,13 @@ def class TestStateMachine extends GroovyTestCase
     running: [[to: 'stopped', action: 'stop']]
   ]
 
+  def static TRANSITIONS4 =
+  [
+      NONE: [[to: 'installed', action: 'install']],
+      installed: [[to: 'NONE', action: 'uninstall'], [to: 'prepared', action: 'prepare']],
+      prepared: [[to: 'upgraded', action: 'commit'], [to: 'installed', action: 'rollback']],
+      upgraded: [[to: 'NONE', action: 'uninstall']]
+  ]
 
   StateMachine sm
   def states
@@ -88,6 +95,51 @@ def class TestStateMachine extends GroovyTestCase
                   ['stopped', 'stopped'], ['stopped', StateMachine.NONE],
                   ['running', 'stopped']],
                  sm.availableTransitions)
+  }
+
+  /**
+   * Test the concept of depth
+   */
+  public void testDepth()
+  {
+    assertEquals(0, sm.getDepth())
+    assertEquals(0, sm.getDepth(StateMachine.NONE))
+    assertEquals(1, sm.getDepth('installed'))
+    assertEquals(2, sm.getDepth('stopped'))
+    assertEquals(3, sm.getDepth('running'))
+    sm.forceChangeState('running', null)
+    assertEquals(3, sm.getDepth())
+  }
+
+  /**
+   * Test the concept of distance
+   */
+  public void testDistance()
+  {
+    assertEquals(0, sm.getDistance(StateMachine.NONE, StateMachine.NONE))
+    assertEquals(1, sm.getDistance(StateMachine.NONE, 'installed'))
+    assertEquals(2, sm.getDistance(StateMachine.NONE, 'stopped'))
+    assertEquals(3, sm.getDistance(StateMachine.NONE, 'running'))
+    assertEquals(-2, sm.getDistance('running', StateMachine.NONE)) // running->stopped->NONE
+    assertEquals(-1, sm.getDistance('stopped', StateMachine.NONE)) // stopped->NONE
+    assertEquals(-1, sm.getDistance('installed', StateMachine.NONE)) // installed ->NONE
+    assertEquals(-1, sm.getDistance('running', 'stopped')) // running->stopped
+    assertEquals(1, sm.getDistance('stopped', 'running')) // running->stopped
+  }
+
+  /**
+   * When there are multiple shortest path, the one in the same 'direction' should win
+   */
+  public void testFindShortestPathWhenMultiple()
+  {
+    sm = new StateMachineImpl(transitions: TRANSITIONS4)
+    assertEquals([[to: 'installed', action: 'install'],
+                  [to: 'prepared', action: 'prepare']],
+                 sm.findShortestPath('prepared'))
+    sm.forceChangeState('prepared', null)
+    assertEquals([[to: 'installed', action: 'rollback'],
+                  [to: StateMachine.NONE, action: 'uninstall']],
+                 sm.findShortestPath(StateMachine.NONE))
   }
 
   /**
