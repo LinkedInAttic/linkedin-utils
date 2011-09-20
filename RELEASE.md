@@ -1,4 +1,4 @@
-1.7.1 (2011/06/12)
+1.7.1 (2011/09/20)
 ------------------
 * fixed [bug #4](https://github.com/linkedin/linkedin-utils/issues/4): _GroovyIOUtils.toFile handles groovy string differently_
 
