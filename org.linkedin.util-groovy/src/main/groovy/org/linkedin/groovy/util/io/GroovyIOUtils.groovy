@@ -67,7 +67,7 @@ class GroovyIOUtils extends IOUtils
     if(s instanceof Resource)
       return [file: s.file, tempStatus: false]
 
-    if(s instanceof String)
+    if(s instanceof String || s instanceof GString)
     {
       def uri
       try

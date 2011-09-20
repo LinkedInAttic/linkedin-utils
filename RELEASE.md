@@ -1,3 +1,7 @@
+1.7.1 (2011/06/12)
+------------------
+* fixed [bug #4](https://github.com/linkedin/linkedin-utils/issues/4): _GroovyIOUtils.toFile handles groovy string differently_
+
 1.7.0 (2011/06/12)
 ------------------
 * added notions of depth and distance to state machine

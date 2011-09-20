@@ -345,4 +345,20 @@ class TestFileSystem extends GroovyTestCase
     // restore access rights
     fs.chmod('/dir', '755')
   }
+
+  /**
+   * Test to fix the bug reported in glu (https://github.com/linkedin/glu/issues/95)
+   */
+  public void testToResource()
+  {
+    def path1 = "/foo/toto.xml"
+    def path2 = "foo/toto.xml"
+
+    Resource r = fs.toResource(path1)
+
+    assertEquals(r, fs.toResource(path1))
+    assertEquals(r, fs.toResource("${path1}"))
+    assertEquals(r, fs.toResource(path2))
+    assertEquals(r, fs.toResource("${path2}"))
+  }
 }
