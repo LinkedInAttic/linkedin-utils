@@ -147,10 +147,6 @@ class GroovyNetUtils
    */
   static def withHttpEchoServer(int port, Closure closure)
   {
-    InetSocketAddress address = new InetSocketAddress(port)
-
-    HttpServer server = HttpServer.create(address, 0);
-
     def handler = { HttpExchange t ->
       String response =
         URLBuilder.createFromURL(t.requestURI.toString()).query.getParameter("msg") ?: "<no msg>"
@@ -160,7 +156,29 @@ class GroovyNetUtils
       os.close();
     }
 
-    server.createContext("/echo", handler as HttpHandler);
+    withHttpServer(port, ['/echo': handler], closure)
+  }
+
+  /**
+   * Create a simple http server on localhost on the given port for the duration of the closure.
+   *
+   * @param port the port on which to bind the server (0 means pick an ephemeral port)
+   * @param handlers a map of path (ex: /echo) to handler (a closure or an instance of
+   *        <code>HttpHandler</code>)
+   * @param closure code to execute while the echo server is up and running. Parameter to the
+   * closure = port bound
+   * @return whatever the closure returns
+   */
+  static def withHttpServer(int port, Map handlers, Closure closure)
+  {
+    InetSocketAddress address = new InetSocketAddress(port)
+
+    HttpServer server = HttpServer.create(address, 0);
+
+    handlers.each { String path, handler ->
+      server.createContext(path, handler as HttpHandler);
+    }
+
     server.setExecutor(null); // creates a default executor
     server.start();
 

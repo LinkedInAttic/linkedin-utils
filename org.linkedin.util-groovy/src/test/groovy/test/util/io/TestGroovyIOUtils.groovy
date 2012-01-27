@@ -19,11 +19,10 @@ import org.linkedin.groovy.util.io.fs.FileSystemImpl
 import org.linkedin.groovy.util.io.fs.FileSystem
 import org.linkedin.util.io.resource.Resource
 import org.linkedin.groovy.util.io.GroovyIOUtils
-import com.sun.net.httpserver.HttpServer
-import com.sun.net.httpserver.HttpHandler
-import com.sun.net.httpserver.HttpExchange
-import org.linkedin.util.url.URLBuilder
+
 import org.linkedin.groovy.util.net.GroovyNetUtils
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.Headers
 
 /**
  * @author yan@pongasoft.com */
@@ -163,4 +162,43 @@ public class TestGroovyIOUtils extends GroovyTestCase
     }
   }
 
+  /**
+   * Test for fetch content. Make sure that authorization works properly
+   */
+  public void testFetchContent()
+  {
+    String response
+    Headers requestHeaders
+
+    def handler = { HttpExchange t ->
+      requestHeaders = t.requestHeaders
+      t.sendResponseHeaders(200, response.length());
+      OutputStream os = t.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+    }
+
+    GroovyNetUtils.withHttpServer(0, ['/content': handler]) { int port ->
+
+      FileSystemImpl.createTempFileSystem { FileSystem fs ->
+        File root = fs.root.file
+
+        File tmpFile = new File(root, 'foo.txt')
+
+        response = "abc"
+
+        GroovyIOUtils.fetchContent("http://localhost:${port}/content", tmpFile)
+        assertEquals("abc", tmpFile.text)
+        // no authorization header should be present!
+        assertFalse(requestHeaders.containsKey('Authorization'))
+
+        response = "def"
+        GroovyIOUtils.fetchContent("http://u1:p1@localhost:${port}/content", tmpFile)
+        assertEquals("def", tmpFile.text)
+        // authorization header should be present and properly base64ified
+        assertEquals("Basic ${'u1:p1'.bytes.encodeBase64()}",
+                     requestHeaders['Authorization'].iterator().next())
+      }
+    }
+  }
 }

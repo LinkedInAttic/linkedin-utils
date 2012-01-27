@@ -330,24 +330,24 @@ class GroovyIOUtils extends IOUtils
       throw new FileNotFoundException(location.toString())
 
     // See http://download.oracle.com/javase/1.4.2/docs/api/java/net/URI.html#getUserInfo()
+    def params = [src: uri, dest: destination]
+
     // Extract the user:pass if it exists
-    String username = null
-    String password = null
     def userInfo = uri.userInfo
     if(userInfo)
     {
       userInfo = userInfo.split(":")
       if(userInfo.length == 2)
       {
-        username = userInfo[0]
-        password = userInfo[1]
+        params.username = userInfo[0]
+        params.password = userInfo[1]
       }
     }
-    
+
     try
     {
       AntUtils.withBuilder { ant ->
-        ant.get(src: uri, dest: destination, username: username, password: password)
+        ant.get(params)
       }
     }
     catch(IOException e)
