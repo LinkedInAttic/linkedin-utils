@@ -1,3 +1,7 @@
+1.7.2 (2012/01/27)
+------------------
+* fixed [bug #5](https://github.com/linkedin/linkedin-utils/issues/5): _no Authorization header should be generated in fetchContent when not present_
+
 1.7.1 (2011/09/20)
 ------------------
 * fixed [bug #4](https://github.com/linkedin/linkedin-utils/issues/4): _GroovyIOUtils.toFile handles groovy string differently_
