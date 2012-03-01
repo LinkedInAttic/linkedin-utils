@@ -171,7 +171,7 @@ public class RAMDirectory extends RAMEntry
    * Copy the entry in this directory with the provided name
    * 
    * @param entry
-   * @return
+   * @return the touched entry
    */
   public RAMEntry add(RAMEntry entry)
   {
