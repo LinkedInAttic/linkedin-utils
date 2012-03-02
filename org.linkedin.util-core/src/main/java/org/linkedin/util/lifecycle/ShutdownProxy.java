@@ -98,7 +98,7 @@ public class ShutdownProxy implements InvocationHandler, Serializable, ObjectPro
    * @param o
    * @param method
    * @param objects
-   * @return
+   * @return object
    * @throws Throwable
    */
   @Override

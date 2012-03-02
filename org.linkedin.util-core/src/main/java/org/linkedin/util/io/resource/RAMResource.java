@@ -149,7 +149,7 @@ public class RAMResource extends AbstractResource
    * Factory of {@link RAMResource} (based on a {@link RAMDirectory}
    *
    * @param root
-   * @return
+   * @return resource
    */
   public static Resource create(RAMDirectory root)
   {
