@@ -621,7 +621,6 @@ public class URLBuilder implements URL, Serializable
    * return its previous value.
    *  
    * @param names parameter to remove
-   * @return previous value or null if parameter doesn't exist
    */
   public void removeQueryParameters(String... names)
   {
