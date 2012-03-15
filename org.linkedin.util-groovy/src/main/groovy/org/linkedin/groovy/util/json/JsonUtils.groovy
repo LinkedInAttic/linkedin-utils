@@ -17,10 +17,12 @@
 
 package org.linkedin.groovy.util.json
 
-import org.codehaus.jackson.map.*
 import org.json.JSONObject
 import org.json.JSONArray
 import org.linkedin.util.io.SortingSerializerFactory
+import org.codehaus.jackson.map.ObjectMapper
+import org.codehaus.jackson.map.SerializationConfig
+import org.codehaus.jackson.map.ser.CustomSerializerFactory
 import org.codehaus.jackson.map.ser.std.ToStringSerializer
 
 /**
@@ -30,36 +32,49 @@ import org.codehaus.jackson.map.ser.std.ToStringSerializer
  */
 class JsonUtils
 {
-  private static final jacksonMapper = newSortingMapper()
+  private static final JACKSON_MAPPER = newJacksonMapper(false)
+  private static final JACKSON_SORTING_MAPPER = newJacksonMapper(true)
 
-  static ObjectMapper newSortingMapper()
+  static ObjectMapper newJacksonMapper(sorting)
   {
     def mapper = new ObjectMapper()
     mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false)
-    def sf = new SortingSerializerFactory()
+    def sf = sorting ? new SortingSerializerFactory() : new CustomSerializerFactory()
     sf.addGenericMapping(GString.class, ToStringSerializer.instance)
     mapper.setSerializerFactory(sf)
     return mapper
   }
-  
+
+  /**
+   * Represents the value in JSON, nicely indented and human readable depending on 'indent'
+   */
+  static String prettyPrint(value, int indent)
+  {
+    if(indent)
+      return prettyPrint(value)
+    else
+      return compactPrint(value)
+  }
+
+
   /**
    * Represents the value in JSON, nicely indented and human readable
    */
-  static String prettyPrinted(value)
+  static String prettyPrint(value)
   {
     if (value == null)
       return null
-    return jacksonMapper.defaultPrettyPrintingWriter().writeValueAsString(value)
+    return JACKSON_SORTING_MAPPER.defaultPrettyPrintingWriter().writeValueAsString(value)
   }
 
   /**
-   * Represents the value in JSON, compact form
+   * Represents the value in JSON, compact form (keys are not sorted)
    */
-  static String compactRepresentation(value)
+  static String compactPrint(value)
   {
     if (value == null)
       return null
-    return jacksonMapper.writeValueAsString(value)
+    return JACKSON_MAPPER.writeValueAsString(value)
   }
 
   /**
@@ -73,9 +88,9 @@ class JsonUtils
       return null
     json = json.trim()
     if(json.startsWith('['))
-      return jacksonMapper.readValue(json, ArrayList.class)
+      return JACKSON_SORTING_MAPPER.readValue(json, ArrayList.class)
     else
-      return jacksonMapper.readValue(json, LinkedHashMap.class)
+      return JACKSON_SORTING_MAPPER.readValue(json, LinkedHashMap.class)
   }
 
   /**
