@@ -46,13 +46,15 @@ public class TestGroovyIOUtils extends GroovyTestCase
     def str1 = 'foo'
     def str2 = 'bar'
     def map = [b: 'v1', a: "${str1}!=${str2}"]    // This map contains a groovy.lang.GString descendant
-    assertEquals('{"a":"foo!=bar","b":"v1"}', JsonUtils.compactRepresentation(map))
+    def deserialized_map = JsonUtils.fromJSON(JsonUtils.compactPrint(map))
+    assertEquals(map['b'], deserialized_map['b'])
+    assertEquals(map['a'], deserialized_map['a'])
+    assertEquals(map.size(), deserialized_map.size())
     assertEquals("""{
   "a" : "foo!=bar",
   "b" : "v1"
-}""", JsonUtils.prettyPrinted(map))
+}""", JsonUtils.prettyPrint(map))
     map = [z: null, a: 'v1', d: ['t2', 't1'], c: 'v3', b: [a: 'b1', c:  'b2', d: ['foo', 'bar'], b: 'b3']];
-    assertEquals('{"a":"v1","b":{"a":"b1","b":"b3","c":"b2","d":["foo","bar"]},"c":"v3","d":["t2","t1"]}', JsonUtils.compactRepresentation(map))
     assertEquals("""{
   "a" : "v1",
   "b" : {
@@ -63,17 +65,16 @@ public class TestGroovyIOUtils extends GroovyTestCase
   },
   "c" : "v3",
   "d" : [ "t2", "t1" ]
-}""", JsonUtils.prettyPrinted(map))
+}""", JsonUtils.prettyPrint(map))
     map = [a: 'v1', d: 'v2', c: 'v3', b: 'v4'];
-    assertEquals('{"a":"v1","b":"v4","c":"v3","d":"v2"}', JsonUtils.compactRepresentation(map))
     assertEquals("""{
   "a" : "v1",
   "b" : "v4",
   "c" : "v3",
   "d" : "v2"
-}""", JsonUtils.prettyPrinted(map))
+}""", JsonUtils.prettyPrint(map))
   }
-  
+
   public void testWithFile()
   {
     GroovyNetUtils.withHttpEchoServer { int port ->
