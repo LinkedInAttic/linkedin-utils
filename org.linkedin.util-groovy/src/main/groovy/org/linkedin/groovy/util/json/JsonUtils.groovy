@@ -15,40 +15,70 @@
  */
 
 
- package org.linkedin.groovy.util.json
+package org.linkedin.groovy.util.json
 
 import org.json.JSONObject
 import org.json.JSONArray
+import org.linkedin.util.io.SortingSerializerFactory
+import org.codehaus.jackson.map.ObjectMapper
+import org.codehaus.jackson.map.SerializationConfig
+import org.codehaus.jackson.map.ser.CustomSerializerFactory
+import org.codehaus.jackson.map.ser.std.ToStringSerializer
 
 /**
  * Contains utilities for json.
- * 
+ *
  * @author ypujante@linkedin.com
  */
 class JsonUtils
 {
-  /**
-   * Converts the value to a json object and displays it nicely indented
-   */
-  static String prettyPrint(value)
+  private static final JACKSON_MAPPER = newJacksonMapper(false)
+  private static final JACKSON_SORTING_MAPPER = newJacksonMapper(true)
+
+  static ObjectMapper newJacksonMapper(sorting)
   {
-    prettyPrint(value, 2)
+    def mapper = new ObjectMapper()
+    mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false)
+    def sf = sorting ? new SortingSerializerFactory() : new CustomSerializerFactory()
+    sf.addGenericMapping(GString.class, ToStringSerializer.instance)
+    mapper.setSerializerFactory(sf)
+    return mapper
   }
 
   /**
-   * Converts the value to a json object and displays it nicely indented
+   * Represents the value in JSON, nicely indented and human readable depending on 'indent'
    */
   static String prettyPrint(value, int indent)
   {
-    def json = toJSON(value)
-    if(json == null)
+    if(indent)
+      return prettyPrint(value)
+    else
+      return compactPrint(value)
+  }
+
+
+  /**
+   * Represents the value in JSON, nicely indented and human readable
+   */
+  static String prettyPrint(value)
+  {
+    if (value == null)
       return null
-    return json.toString(indent)
+    return JACKSON_SORTING_MAPPER.defaultPrettyPrintingWriter().writeValueAsString(value)
   }
 
   /**
-   * Given a json string, convert it to a value (maps / lists): equivalent to
-   * <code>toValue(new JSONObject(json))</code> or <code>toValue(new JSONArray(json)</code>
+   * Represents the value in JSON, compact form (keys are not sorted)
+   */
+  static String compactPrint(value)
+  {
+    if (value == null)
+      return null
+    return JACKSON_MAPPER.writeValueAsString(value)
+  }
+
+  /**
+   * Given a json string, convert it to a value (map / list)
    * depending on if the json starts with <code>[</code> or <code>{</code>
    * (with proper <code>null</code> handling).
    */
@@ -58,9 +88,9 @@ class JsonUtils
       return null
     json = json.trim()
     if(json.startsWith('['))
-      return toValue(new JSONArray(json))
+      return JACKSON_SORTING_MAPPER.readValue(json, ArrayList.class)
     else
-      return toValue(new JSONObject(json))
+      return JACKSON_SORTING_MAPPER.readValue(json, LinkedHashMap.class)
   }
 
   /**
@@ -159,7 +189,7 @@ class JsonUtils
     list.each { elt ->
       array.put(toJSON(elt))
     }
-    
+
     return array
   }
 }

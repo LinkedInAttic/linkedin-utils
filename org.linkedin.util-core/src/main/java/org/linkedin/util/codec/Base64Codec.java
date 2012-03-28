@@ -301,7 +301,7 @@ public class Base64Codec implements Codec
    * 
    * @param bits - long value containing the bits to encode
    * @param numbits - number of bits to encode
-   * @return
+   * @return encoded bits
    */
   public String encode(long bits, int numbits)
   {
@@ -318,7 +318,7 @@ public class Base64Codec implements Codec
    * Decodes numbits of bits from the string. Invalid or missing digits are treated as 0.
    * @param s - base64-encoded string to decode
    * @param numbits - number of bits to extract (LSB first)
-   * @return
+   * @return number of bits
    */
   public long decode(String s, int numbits)
   {

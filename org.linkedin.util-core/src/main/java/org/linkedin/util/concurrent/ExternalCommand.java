@@ -171,7 +171,7 @@ public class ExternalCommand
    * Returns the output as a string.
    *
    * @param encoding
-   * @return
+   * @return output with encoding
    * @throws InterruptedException
    * @throws UnsupportedEncodingException
    */
@@ -184,7 +184,7 @@ public class ExternalCommand
   /**
    * Returns the output as a string. Uses encoding "UTF-8".
    *
-   * @return
+   * @return output
    * @throws InterruptedException
    */
   public String getStringOutput() throws InterruptedException
@@ -204,7 +204,7 @@ public class ExternalCommand
    * Returns the error as a string.
    *
    * @param encoding
-   * @return
+   * @return string representing the error with given encoding
    * @throws InterruptedException
    * @throws UnsupportedEncodingException
    */
@@ -217,7 +217,7 @@ public class ExternalCommand
   /**
    * Returns the error as a string. Uses encoding "UTF-8".
    *
-   * @return
+   * @return string representing the error
    * @throws InterruptedException
    */
   public String getStringError() throws InterruptedException

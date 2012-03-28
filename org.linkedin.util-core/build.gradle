@@ -19,6 +19,7 @@ apply plugin: 'org.linkedin.release'
 
 dependencies {
   compile spec.external.slf4j
+
   testCompile spec.external.junit
   testRuntime spec.external.slf4jLog4j
 }

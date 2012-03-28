@@ -18,7 +18,7 @@
 spec = [
     name: 'linkedin-utils',
     group: 'org.linkedin',
-    version: '1.7.2',
+    version: '1.8.0',
 
     versions: [
       groovy: '1.7.5',
@@ -46,6 +46,8 @@ spec.external = [
   ant: 'org.apache.ant:ant:1.8.1',
   groovy: "org.codehaus.groovy:groovy:${spec.versions.groovy}",
   json: 'org.json:json:20090211',
+  jacksoncore: "org.codehaus.jackson:jackson-core-asl:1.9.5",
+  jacksonmapper: "org.codehaus.jackson:jackson-mapper-asl:1.9.5",
   junit: 'junit:junit:4.4',
   log4j: 'log4j:log4j:1.2.16',
   slf4j: "org.slf4j:slf4j-api:${spec.versions.slf4j}",

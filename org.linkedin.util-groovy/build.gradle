@@ -24,9 +24,11 @@ dependencies {
   compile spec.external.slf4jJul
   compile spec.external.log4j
   compile spec.external.json
+  compile spec.external.jacksoncore
+  compile spec.external.jacksonmapper
 
   groovy spec.external.groovy
-  
+
   testCompile spec.external.junit
   testRuntime spec.external.slf4jLog4j
 }

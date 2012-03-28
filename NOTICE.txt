@@ -10,8 +10,8 @@ This product uses the libraries
   all of which are software developed by The Apache Software Foundation (http://www.apache.org/)
 
    =========================================================================
-This product uses a json parser (www.json.org) with the following license (http://www.json.org/license.html)
-Copyright (c) 2002 JSON.org
+This product uses a json parser (www.json.org) with the following license (http://www.json.org/license.html), Copyright (c) 2002 JSON.org
+This product uses the Jackson JSON processor (http://jackson.codehaus.org/) with the Apache License (http://www.apache.org/licenses/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -63,7 +63,7 @@ This product uses groovy (the language) with the following license:
  */
 
      =========================================================================
-This product uses gradle (http://www.gradle.org/) for the build framework with the following 
+This product uses gradle (http://www.gradle.org/) for the build framework with the following
 license (http://www.gradle.org/license.html):
 Copyright 2007-2010 the original author or authors
 
@@ -107,7 +107,7 @@ Contributor if it was added to the Program by such Contributor itself or anyone
 acting on such Contributor's behalf. Contributions do not include additions to
 the Program which: (i) are separate modules of software distributed in
 conjunction with the Program under their own license agreement, and (ii) are
-not derivative works of the Program. 
+not derivative works of the Program.
 
 "Contributor" means any person or entity that distributes the Program.
 
@@ -137,7 +137,7 @@ Contribution and the Program if, at the time the Contribution is added by the
 Contributor, such addition of the Contribution causes such combination to be
 covered by the Licensed Patents. The patent license shall not apply to any
 other combinations which include the Contribution. No hardware per se is
-licensed hereunder. 
+licensed hereunder.
 
       c) Recipient understands that although each Contributor grants the
 licenses to its Contributions set forth herein, no assurances are provided by
@@ -153,7 +153,7 @@ acquire that license before distributing the Program.
 
       d) Each Contributor represents that to its knowledge it has sufficient
 copyright rights in its Contribution, if any, to grant the copyright license
-set forth in this Agreement. 
+set forth in this Agreement.
 
 3. REQUIREMENTS
 
@@ -167,25 +167,25 @@ its own license agreement, provided that:
       i) effectively disclaims on behalf of all Contributors all warranties and
 conditions, express and implied, including warranties or conditions of title
 and non-infringement, and implied warranties or conditions of merchantability
-and fitness for a particular purpose; 
+and fitness for a particular purpose;
 
       ii) effectively excludes on behalf of all Contributors all liability for
 damages, including direct, indirect, special, incidental and consequential
-damages, such as lost profits; 
+damages, such as lost profits;
 
       iii) states that any provisions which differ from this Agreement are
 offered by that Contributor alone and not by any other party; and
 
       iv) states that source code for the Program is available from such
 Contributor, and informs licensees how to obtain it in a reasonable manner on
-or through a medium customarily used for software exchange. 
+or through a medium customarily used for software exchange.
 
 When the Program is made available in source code form:
 
-      a) it must be made available under this Agreement; and 
+      a) it must be made available under this Agreement; and
 
       b) a copy of this Agreement must be included with each copy of the
-Program. 
+Program.
 
 Contributors may not remove or alter any copyright notices contained within the
 Program.
@@ -297,5 +297,5 @@ This Agreement is governed by the laws of the State of New York and the
 intellectual property laws of the United States of America. No party to this
 Agreement will bring a legal action under this Agreement more than one year
 after the cause of action arose. Each party waives its rights to a jury trial
-in any resulting litigation. 
- 
+in any resulting litigation.
+
