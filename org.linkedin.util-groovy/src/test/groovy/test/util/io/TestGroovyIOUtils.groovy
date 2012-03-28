@@ -46,6 +46,12 @@ public class TestGroovyIOUtils extends GroovyTestCase
     def str1 = 'foo'
     def str2 = 'bar'
     def map = [b: 'v1', a: "${str1}!=${str2}"]    // This map contains a groovy.lang.GString descendant
+    // Descendants of groovy.lang.GString (example: org.codehaus.groovy.runtime.GstringImpl)
+    // must be deserialized by Jackson using toString() instead of Java reflexion.
+    // Otherwise 'statusInfo' will be deserialized in a weird way, something like:
+    // "statusInfo": { "values": ["running", "stopped"], "strings": ["", "!=", ""], "valueCount": 2 }
+    // instead of:
+    // "statusInfo": "running!=stopped"
     def deserialized_map = JsonUtils.fromJSON(JsonUtils.compactPrint(map))
     assertEquals(map['b'], deserialized_map['b'])
     assertEquals(map['a'], deserialized_map['a'])
