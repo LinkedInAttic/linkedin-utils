@@ -63,6 +63,42 @@ public class TestJsonUtils extends GroovyTestCase
 }""", JsonUtils.prettyPrint(map))
   }
 
+  public void testSerialization()
+  {
+    int[] array = new int[1]
+    array[0] = 5
+
+    def map = [
+      z: 1,
+      y: new Integer(2),
+      x: "abc",
+      w: [3, [cc: new MyBean(foo: 'g', bar: 7), bb: 12.4 as float, aa: [14.2]]],
+      v: [
+        a: 4 as long
+      ],
+      u: array,
+      t: new MyBean(foo:'f', bar: 6)
+    ]
+
+    String expected = """{
+  "t": "f/6",
+  "u": [5],
+  "v": {
+    "a": 4
+  },
+  "w": [3, {
+    "aa": [14.2],
+    "bb": 12.4,
+    "cc": "g/7"
+  }],
+  "x": "abc",
+  "y": 2,
+  "z": 1
+}"""
+    assertEquals(expected, JsonUtils.prettyPrint(map))
+    assertEquals(expected, JsonUtils.prettyPrint(JsonUtils.fromJSON(expected)))
+  }
+
   private String withIndent0 = '{"z":3,"b":[1,3,4],"y":[],"w":["4"],"a":{"h":["foo","bar",{"zz":1,"aa":2}],"l":5},"k":{"v":5},"x":{}}'
 
   private String withIndent1 = """{
@@ -175,4 +211,18 @@ public class TestJsonUtils extends GroovyTestCase
     assertEquals(withIndent2, JsonUtils.prettyPrint(jsonObject))
     assertEquals(withIndent2, JsonUtils.prettyPrint(jsonObject, 2))
   }
+}
+
+class MyBean
+{
+  String foo
+  int bar
+
+  @Override
+  String toString()
+  {
+    return "${foo}/${bar}"
+  }
+
+
 }

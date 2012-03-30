@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import org.json.JSONArray
 import org.json.JSONObject
-import org.linkedin.util.json.jackson.GroovySerializerFactory
+import org.linkedin.util.json.jackson.MetadataStyleSerializerFactory
 import org.linkedin.util.json.jackson.JacksonPrettyPrinter
 
 /**
@@ -54,7 +54,7 @@ class JsonUtils
     if(sorting)
       mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
     mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-    mapper.setSerializerFactory(new GroovySerializerFactory())
+    mapper.setSerializerFactory(new MetadataStyleSerializerFactory())
     return mapper
   }
 
