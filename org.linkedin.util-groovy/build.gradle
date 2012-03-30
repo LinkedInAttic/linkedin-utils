@@ -25,7 +25,7 @@ dependencies {
   compile spec.external.log4j
   compile spec.external.json
   compile spec.external.jacksoncore
-  compile spec.external.jacksonmapper
+  compile spec.external.jacksondatabind
 
   groovy spec.external.groovy
 
