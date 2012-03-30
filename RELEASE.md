@@ -1,3 +1,12 @@
+1.8.0 (2012/03/31)
+------------------
+* implemented [ticket #6](https://github.com/linkedin/linkedin-utils/issues/6): _Using Jackson JSON (de)serializer_ (thanks for the help from Zoran @ LinkedIn)
+* fixed [bug #7](https://github.com/linkedin/linkedin-utils/issues/7): _ArrayList.size field does not exist on other JVMs but sun's_
+
+This version uses Jackson Json parser which improves speed and memory consumption when reading/writing JSON.
+
+Note that ``prettyPrint`` returns a slightly different output than before (keys are still sorted).
+
 1.7.2 (2012/01/27)
 ------------------
 * fixed [bug #5](https://github.com/linkedin/linkedin-utils/issues/5): _no Authorization header should be generated in fetchContent when not present_
