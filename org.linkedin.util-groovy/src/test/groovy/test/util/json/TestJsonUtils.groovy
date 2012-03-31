@@ -49,10 +49,16 @@ public class TestJsonUtils extends GroovyTestCase
     "a": "b1",
     "b": "b3",
     "c": "b2",
-    "d": ["foo", "bar"]
+    "d": [
+      "foo",
+      "bar"
+    ]
   },
   "c": "v3",
-  "d": ["t2", "t1"]
+  "d": [
+    "t2",
+    "t1"
+  ]
 }""", JsonUtils.prettyPrint(map))
     map = [a: 'v1', d: 'v2', c: 'v3', b: 'v4'];
     assertEquals("""{
@@ -82,15 +88,22 @@ public class TestJsonUtils extends GroovyTestCase
 
     String expected = """{
   "t": "f/6",
-  "u": [5],
+  "u": [
+    5
+  ],
   "v": {
     "a": 4
   },
-  "w": [3, {
-    "aa": [14.2],
-    "bb": 12.4,
-    "cc": "g/7"
-  }],
+  "w": [
+    3,
+    {
+      "aa": [
+        14.2
+      ],
+      "bb": 12.4,
+      "cc": "g/7"
+    }
+  ],
   "x": "abc",
   "y": 2,
   "z": 1
@@ -103,58 +116,91 @@ public class TestJsonUtils extends GroovyTestCase
 
   private String withIndent1 = """{
  "a": {
-  "h": ["foo", "bar", {
-   "aa": 2,
-   "zz": 1
-  }],
+  "h": [
+   "foo",
+   "bar",
+   {
+    "aa": 2,
+    "zz": 1
+   }
+  ],
   "l": 5
  },
- "b": [1, 3, 4],
+ "b": [
+  1,
+  3,
+  4
+ ],
  "k": {
   "v": 5
  },
- "w": ["4"],
+ "w": [
+  "4"
+ ],
  "x": {
  },
- "y": [],
+ "y": [
+ ],
  "z": 3
 }"""
 
   private String withIndent2 = """{
   "a": {
-    "h": ["foo", "bar", {
-      "aa": 2,
-      "zz": 1
-    }],
+    "h": [
+      "foo",
+      "bar",
+      {
+        "aa": 2,
+        "zz": 1
+      }
+    ],
     "l": 5
   },
-  "b": [1, 3, 4],
+  "b": [
+    1,
+    3,
+    4
+  ],
   "k": {
     "v": 5
   },
-  "w": ["4"],
+  "w": [
+    "4"
+  ],
   "x": {
   },
-  "y": [],
+  "y": [
+  ],
   "z": 3
 }"""
 
   private String withIndent6 = """{
       "a": {
-            "h": ["foo", "bar", {
-                  "aa": 2,
-                  "zz": 1
-            }],
+            "h": [
+                  "foo",
+                  "bar",
+                  {
+                        "aa": 2,
+                        "zz": 1
+                  }
+            ],
             "l": 5
       },
-      "b": [1, 3, 4],
+      "b": [
+            1,
+            3,
+            4
+      ],
       "k": {
             "v": 5
       },
-      "w": ["4"],
+      "w": [
+            "4"
+      ],
       "x": {
       },
-      "y": [],
+      "y": [
+      ],
       "z": 3
 }"""
 

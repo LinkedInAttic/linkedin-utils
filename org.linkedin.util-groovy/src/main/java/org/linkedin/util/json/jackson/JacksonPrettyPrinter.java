@@ -16,6 +16,7 @@
 package org.linkedin.util.json.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
@@ -25,32 +26,55 @@ import java.io.IOException;
  *
  * @author yan@pongasoft.com
  */
-public class JacksonPrettyPrinter extends DefaultPrettyPrinter
+public class JacksonPrettyPrinter implements PrettyPrinter
 {
-  public static final Indenter FIXED_SPACE_INDENTER = new FixedSpaceIndenter();
-  public static final Indenter LF_2_SPACES_INDENTER = new Lf2SpacesIndenter();
+  public static final DefaultPrettyPrinter.Indenter LF_2_SPACES_INDENTER =
+    new DefaultPrettyPrinter.Lf2SpacesIndenter();
+
+  private final DefaultPrettyPrinter.Indenter _indenter;
+  private int _nesting = 0;
 
   public JacksonPrettyPrinter(int indent)
   {
     super();
-    indentArraysWith(FIXED_SPACE_INDENTER);
     if(indent == 2)
-      indentObjectsWith(LF_2_SPACES_INDENTER);
+      _indenter = LF_2_SPACES_INDENTER;
     else
-      indentObjectsWith(new LfNSpacesIndenter(indent));
+      _indenter = new LfNSpacesIndenter(indent);
   }
 
   @Override
-  public void beforeArrayValues(JsonGenerator jg)
+  public void writeRootValueSeparator(JsonGenerator jg) throws IOException
   {
-    // nothing
+  }
+
+  private void writeIndentation(JsonGenerator jg) throws IOException
+  {
+    _indenter.writeIndentation(jg, _nesting);
   }
 
   @Override
-  public void writeEndArray(JsonGenerator jg, int nrOfValues)
+  public void writeStartObject(JsonGenerator jg) throws IOException
+  {
+    jg.writeRaw('{');
+    _nesting++;
+  }
+
+  @Override
+  public void writeEndObject(JsonGenerator jg, int nrOfEntries)
     throws IOException
   {
-    jg.writeRaw(']');
+    _nesting--;
+    writeIndentation(jg);
+    jg.writeRaw('}');
+  }
+
+  @Override
+  public void writeObjectEntrySeparator(JsonGenerator jg)
+    throws IOException
+  {
+    jg.writeRaw(',');
+    writeIndentation(jg);
   }
 
   @Override
@@ -58,5 +82,40 @@ public class JacksonPrettyPrinter extends DefaultPrettyPrinter
     throws IOException
   {
     jg.writeRaw(": ");
+  }
+
+  @Override
+  public void writeStartArray(JsonGenerator jg) throws IOException
+  {
+    jg.writeRaw('[');
+    _nesting++;
+  }
+
+  @Override
+  public void writeEndArray(JsonGenerator jg, int nrOfValues)
+    throws IOException
+  {
+    _nesting--;
+    writeIndentation(jg);
+    jg.writeRaw(']');
+  }
+
+  @Override
+  public void writeArrayValueSeparator(JsonGenerator jg) throws IOException
+  {
+    jg.writeRaw(',');
+    writeIndentation(jg);
+  }
+
+  @Override
+  public void beforeArrayValues(JsonGenerator jg) throws IOException
+  {
+    writeIndentation(jg);
+  }
+
+  @Override
+  public void beforeObjectEntries(JsonGenerator jg) throws IOException
+  {
+    writeIndentation(jg);
   }
 }
