@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.ser.std.BooleanSerializer;
 import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -49,27 +50,52 @@ public class MetadataStyleSerializerFactory extends BeanSerializerFactory
   {
     SERIALIZERS = new HashMap<String, JsonSerializer<?>>();
 
+    NumberSerializers.IntLikeSerializer integerLikeSerializer =
+      new NumberSerializers.IntLikeSerializer();
+    NumberSerializers.IntegerSerializer integerSerializer =
+      new NumberSerializers.IntegerSerializer();
+    NumberSerializers.NumberSerializer numberSerializer =
+      new NumberSerializers.NumberSerializer();
+    NumberSerializers.LongSerializer longSerializer =
+      new NumberSerializers.LongSerializer();
+    NumberSerializers.FloatSerializer floatSerializer =
+      new NumberSerializers.FloatSerializer();
+    NumberSerializers.DoubleSerializer doubleSerializer =
+      new NumberSerializers.DoubleSerializer();
+
+    // boolean
+    SERIALIZERS.put(boolean.class.getName(), new BooleanSerializer(true));
+    SERIALIZERS.put(Boolean.class.getName(), new BooleanSerializer(false));
+
     // char
     SERIALIZERS.put(char.class.getName(), ToStringSerializer.instance);
     SERIALIZERS.put(Character.class.getName(), ToStringSerializer.instance);
 
+    // byte
+    SERIALIZERS.put(byte.class.getName(), integerLikeSerializer);
+    SERIALIZERS.put(Byte.class.getName(), integerLikeSerializer);
+
+    // short
+    SERIALIZERS.put(short.class.getName(), integerLikeSerializer);
+    SERIALIZERS.put(Short.class.getName(), integerLikeSerializer);
+
     // int
-    SERIALIZERS.put(int.class.getName(), new NumberSerializers.IntegerSerializer());
-    SERIALIZERS.put(Integer.class.getName(), new NumberSerializers.IntegerSerializer());
-    SERIALIZERS.put(BigInteger.class.getName(), new NumberSerializers.NumberSerializer());
+    SERIALIZERS.put(int.class.getName(), integerSerializer);
+    SERIALIZERS.put(Integer.class.getName(), integerSerializer);
+    SERIALIZERS.put(BigInteger.class.getName(), numberSerializer);
 
     // long
-    SERIALIZERS.put(long.class.getName(), new NumberSerializers.LongSerializer());
-    SERIALIZERS.put(Long.class.getName(), new NumberSerializers.LongSerializer());
+    SERIALIZERS.put(long.class.getName(), longSerializer);
+    SERIALIZERS.put(Long.class.getName(), longSerializer);
 
     // float
-    SERIALIZERS.put(float.class.getName(), new NumberSerializers.FloatSerializer());
-    SERIALIZERS.put(Float.class.getName(), new NumberSerializers.FloatSerializer());
+    SERIALIZERS.put(float.class.getName(), floatSerializer);
+    SERIALIZERS.put(Float.class.getName(), floatSerializer);
 
     // double
-    SERIALIZERS.put(double.class.getName(), new NumberSerializers.DoubleSerializer());
-    SERIALIZERS.put(Double.class.getName(), new NumberSerializers.DoubleSerializer());
-    SERIALIZERS.put(BigDecimal.class.getName(), new NumberSerializers.NumberSerializer());
+    SERIALIZERS.put(double.class.getName(), doubleSerializer);
+    SERIALIZERS.put(Double.class.getName(), doubleSerializer);
+    SERIALIZERS.put(BigDecimal.class.getName(), numberSerializer);
 
     // String
     SERIALIZERS.put(String.class.getName(), new StringSerializer());

@@ -83,10 +83,14 @@ public class TestJsonUtils extends GroovyTestCase
         a: 4 as long
       ],
       u: array,
-      t: new MyBean(foo:'f', bar: 6)
+      t: new MyBean(foo:'f', bar: 6),
+      s: true,
+      r: Boolean.FALSE
     ]
 
     String expected = """{
+  "r": false,
+  "s": true,
   "t": "f/6",
   "u": [
     5
