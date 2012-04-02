@@ -1,5 +1,6 @@
 /*
- * Copyright 2010-2010 LinkedIn, Inc
+ * Copyright 2010-2012 LinkedIn, Inc
+ * Portions Copyright 2012 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,13 +18,14 @@
 
 package org.linkedin.groovy.util.json
 
-import org.json.JSONObject
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import org.json.JSONArray
-import org.linkedin.util.io.SortingSerializerFactory
-import org.codehaus.jackson.map.ObjectMapper
-import org.codehaus.jackson.map.SerializationConfig
-import org.codehaus.jackson.map.ser.CustomSerializerFactory
-import org.codehaus.jackson.map.ser.std.ToStringSerializer
+import org.json.JSONObject
+import org.linkedin.util.json.jackson.MetadataStyleSerializerFactory
+import org.linkedin.util.json.jackson.JacksonPrettyPrinter
 
 /**
  * Contains utilities for json.
@@ -32,17 +34,36 @@ import org.codehaus.jackson.map.ser.std.ToStringSerializer
  */
 class JsonUtils
 {
+  private static final def JACKSON_PARSER
   private static final JACKSON_MAPPER = newJacksonMapper(false)
   private static final JACKSON_SORTING_MAPPER = newJacksonMapper(true)
+
+  static {
+    // creating the parser => allowing comments, single quotes and no quotes around
+    // field names
+    JACKSON_PARSER = new ObjectMapper()
+    JACKSON_PARSER.configure(JsonParser.Feature.ALLOW_COMMENTS, true)
+    JACKSON_PARSER.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
+    JACKSON_PARSER.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+  }
 
   static ObjectMapper newJacksonMapper(sorting)
   {
     def mapper = new ObjectMapper()
-    mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false)
-    def sf = sorting ? new SortingSerializerFactory() : new CustomSerializerFactory()
-    sf.addGenericMapping(GString.class, ToStringSerializer.instance)
-    mapper.setSerializerFactory(sf)
+    mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
+    if(sorting)
+      mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
+    mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+    mapper.setSerializerFactory(new MetadataStyleSerializerFactory())
     return mapper
+  }
+
+  /**
+   * Represents the value in JSON, nicely indented and human readable
+   */
+  static String prettyPrint(value)
+  {
+    return prettyPrint(value, 2)
   }
 
   /**
@@ -50,21 +71,19 @@ class JsonUtils
    */
   static String prettyPrint(value, int indent)
   {
-    if(indent)
-      return prettyPrint(value)
+    if(indent > 0)
+    {
+      // handles JSONObject/JSONArray
+      value = toValue(value)
+
+      if (value == null)
+        return null
+
+      def prettyPrinter = new JacksonPrettyPrinter(indent)
+      return JACKSON_SORTING_MAPPER.writer(prettyPrinter).writeValueAsString(value)
+    }
     else
       return compactPrint(value)
-  }
-
-
-  /**
-   * Represents the value in JSON, nicely indented and human readable
-   */
-  static String prettyPrint(value)
-  {
-    if (value == null)
-      return null
-    return JACKSON_SORTING_MAPPER.defaultPrettyPrintingWriter().writeValueAsString(value)
   }
 
   /**
@@ -72,8 +91,12 @@ class JsonUtils
    */
   static String compactPrint(value)
   {
+    // handles JSONObject/JSONArray
+    value = toValue(value)
+
     if (value == null)
       return null
+
     return JACKSON_MAPPER.writeValueAsString(value)
   }
 
@@ -88,9 +111,9 @@ class JsonUtils
       return null
     json = json.trim()
     if(json.startsWith('['))
-      return JACKSON_SORTING_MAPPER.readValue(json, ArrayList.class)
+      return JACKSON_PARSER.readValue(json, ArrayList.class)
     else
-      return JACKSON_SORTING_MAPPER.readValue(json, LinkedHashMap.class)
+      return JACKSON_PARSER.readValue(json, LinkedHashMap.class)
   }
 
   /**

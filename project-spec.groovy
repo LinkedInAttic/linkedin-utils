@@ -22,6 +22,7 @@ spec = [
 
     versions: [
       groovy: '1.7.5',
+      jackson: '2.0.0',
       slf4j: '1.5.8' // to be compatible with grails 1.3.5
     ],
 
@@ -46,8 +47,8 @@ spec.external = [
   ant: 'org.apache.ant:ant:1.8.1',
   groovy: "org.codehaus.groovy:groovy:${spec.versions.groovy}",
   json: 'org.json:json:20090211',
-  jacksoncore: "org.codehaus.jackson:jackson-core-asl:1.9.5",
-  jacksonmapper: "org.codehaus.jackson:jackson-mapper-asl:1.9.5",
+  jacksoncore: "com.fasterxml.jackson.core:jackson-core:${spec.versions.jackson}",
+  jacksondatabind: "com.fasterxml.jackson.core:jackson-databind:${spec.versions.jackson}",
   junit: 'junit:junit:4.4',
   log4j: 'log4j:log4j:1.2.16',
   slf4j: "org.slf4j:slf4j-api:${spec.versions.slf4j}",

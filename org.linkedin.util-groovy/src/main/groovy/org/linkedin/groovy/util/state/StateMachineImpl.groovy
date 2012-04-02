@@ -84,7 +84,7 @@ def class StateMachineImpl implements StateMachine
   private int computeDepth(state)
   {
     findPaths(NONE, state).min { c1, c2 ->
-      return c1.size - c2.size
+      return c1.size() - c2.size()
     }.size()
   }
 
