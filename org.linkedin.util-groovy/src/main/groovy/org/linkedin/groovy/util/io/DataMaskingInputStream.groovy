@@ -113,8 +113,12 @@ public class DataMaskingInputStream extends FilterInputStream {
           value = "********"
         }
 
+        if(value.contains('password=')){
+            value=value.replaceAll("password=[^&]*", "password=********")
+        }
+
         if (value.contains('oracle')) {
-          value = value.replaceAll("\\w*/\\w*", '********/********')
+          value = value.replaceAll("\\w*/[^@]*", '********/********')
         }
 
         return "${prefix}${key}${middle}${value}${suffix}"
