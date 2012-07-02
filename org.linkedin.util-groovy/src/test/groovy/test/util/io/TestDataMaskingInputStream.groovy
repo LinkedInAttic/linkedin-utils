@@ -1,32 +1,61 @@
+/*
+ * Copyright 2010-2010 LinkedIn, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package test.util.io
 
 import org.linkedin.groovy.util.io.DataMaskingInputStream
 
 /**
- * Created by IntelliJ IDEA.
  * User: hhan
  * Date: 6/18/12
  * Time: 3:16 PM
+ * @author hhan@linkedin.com
  */
 class TestDataMaskingInputStream extends GroovyTestCase {
 
+  void testOracleDBContent()
+  {
+    def temp = File.createTempFile("cfg2", "properties")
+    temp.write '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-AES/CBC/PKCS5Padding(3QIdAjOKfAqcetGKhHEWez,0VWjpS2ewydmPFX8y-F3M_,umlHnS9A)@//test.prod.linkedin.com:1521/PROD_PMEM2_MEMBER2" /> \n'
 
-    void testOracleDBContent() {
-        def temp = File.createTempFile("cfg2", "properties")
-        temp.write '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-AES/CBC/PKCS5Padding(3QIdAjOKfAqcetGKhHEWez,0VWjpS2ewydmPFX8y-F3M_,umlHnS9A)@//test.prod.linkedin.com:1521/PROD_PMEM2_MEMBER2" /> \n'
-        String line = new DataMaskingInputStream(temp.newDataInputStream()).readLines()[0]
-        String expected = '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-********/********@********/********" />'
-        assertFalse (line.contains("AES/CBC/PKCS5Padding(3QIdAjOKfAqcetGKhHEWez"))
-        temp.deleteOnExit();
-    }
+    DataMaskingInputStream stream = new DataMaskingInputStream(temp.newDataInputStream())
+    def lines = stream.readLines()
+    assertTrue(lines.size() == 1)
 
-    void testMySQLDBContent() {
-        def temp = File.createTempFile("cfg2", "properties")
-        temp.write '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=test" /> \n'
+    String line = lines[0].trim()
+    String expected = '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-********/********@********/********" />'
+    assertEquals(line, expected)
 
-        String line = new DataMaskingInputStream(temp.newDataInputStream()).readLines()[0]
-        String expected = '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=********" />'
-        assertFalse(line.contains("password=test"))
-        temp.deleteOnExit();
-    }
+    temp.deleteOnExit();
+  }
+
+  void testMySQLDBContent()
+  {
+    def temp = File.createTempFile("cfg2", "properties")
+    temp.write '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=test!123#^" /> \n'
+
+    DataMaskingInputStream stream = new DataMaskingInputStream(temp.newDataInputStream())
+    def lines = stream.readLines()
+    assertTrue(lines.size() == 1)
+
+    String line = lines[0].trim()
+    String expected = '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=********" />'
+    assertEquals(line, expected)
+
+    temp.deleteOnExit();
+  }
+
 }
