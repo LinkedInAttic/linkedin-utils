@@ -28,34 +28,30 @@ class TestDataMaskingInputStream extends GroovyTestCase {
 
   void testOracleDBContent()
   {
-    def temp = File.createTempFile("cfg2", "properties")
-    temp.write '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-AES/CBC/PKCS5Padding(3QIdAjOKfAqcetGKhHEWez,0VWjpS2ewydmPFX8y-F3M_,umlHnS9A)@//test.prod.linkedin.com:1521/PROD_PMEM2_MEMBER2" /> \n'
+    def input = '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-AES/CBC/PKCS5Padding(3QIdAjOKfAqcetGKhHEWez,0VWjpS2ewydmPFX8y-F3M_,umlHnS9A)@//test.prod.linkedin.com:1521/PROD_PMEM2_MEMBER2" /> \n'
 
-    DataMaskingInputStream stream = new DataMaskingInputStream(temp.newDataInputStream())
+    DataMaskingInputStream stream = new DataMaskingInputStream(new ByteArrayInputStream(input.getBytes("UTF-8")))
     def lines = stream.readLines()
+    stream.close()
     assertTrue(lines.size() == 1)
 
     String line = lines[0].trim()
     String expected = '<property name="db.member2.db_url" value="jdbc:oracle:thin:Encrypted-********/********@********/********" />'
     assertEquals(line, expected)
-
-    temp.deleteOnExit();
   }
 
   void testMySQLDBContent()
   {
-    def temp = File.createTempFile("cfg2", "properties")
-    temp.write '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=test!123#^" /> \n'
+    def input = '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=test!123#^" /> \n'
 
-    DataMaskingInputStream stream = new DataMaskingInputStream(temp.newDataInputStream())
+    DataMaskingInputStream stream = new DataMaskingInputStream(new ByteArrayInputStream(input.getBytes("UTF-8")))
     def lines = stream.readLines()
+    stream.close()
     assertTrue(lines.size() == 1)
 
     String line = lines[0].trim()
     String expected = '<property name="repdb.mysql.dbURL" value="jdbc:mysql://localhost/repdb_db?user=repdb&amp;password=********" />'
     assertEquals(line, expected)
-
-    temp.deleteOnExit();
   }
 
 }
