@@ -1,3 +1,7 @@
+1.8.1 (2012/06/26)
+------------------
+* improved DB password masking to mask special characters (non alpha-numeric) as well
+
 1.8.0 (2012/03/31)
 ------------------
 * implemented [ticket #6](https://github.com/linkedin/linkedin-utils/issues/6): _Using Jackson JSON (de)serializer_ (thanks for the help from Zoran @ LinkedIn)
@@ -41,7 +45,7 @@ Note that ``prettyPrint`` returns a slightly different output than before (keys 
 ------------------
 * fixed [bug #1](https://github.com/linkedin/linkedin-utils/issues/1): _GroovyIOUtils.cat leaks memory_
 
-  revisited several concepts dealing with the creation of temporary files 
+  revisited several concepts dealing with the creation of temporary files
 
 1.3.0 (2011/01/17)
 ------------------
