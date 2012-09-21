@@ -154,17 +154,20 @@ class GroovyIOUtils extends IOUtils
     if(!child.isAbsolute())
       return child
 
-    String parentPath = parent.canonicalPath
-    String childPath = child.canonicalPath
+    def puri = parent.toURI().normalize()
+    def curi = child.toURI().normalize()
 
-    if(childPath.startsWith(parentPath))
+    def relative = puri.relativize(curi)
+
+    if(relative.isAbsolute())
     {
-      if(childPath == parentPath)
-        return new File('')
-      else
-        return new File(PathUtils.removeLeadingSlash(childPath[parentPath.size()..-1]))
+      // this means that the child is not relative to the parent
+      return null
     }
-    return null
+    else
+    {
+      return new File(relative.path)
+    }
   }
 
   /**

@@ -20,6 +20,8 @@ package test.util.io.fs
 
 import org.linkedin.groovy.util.io.fs.FileSystemImpl
 import org.linkedin.util.io.resource.Resource
+import org.linkedin.groovy.util.ant.AntUtils
+import org.linkedin.groovy.util.io.GroovyIOUtils
 
 /**
  * Test for FileSystem class
@@ -360,5 +362,34 @@ class TestFileSystem extends GroovyTestCase
     assertEquals(r, fs.toResource("${path1}"))
     assertEquals(r, fs.toResource(path2))
     assertEquals(r, fs.toResource("${path2}"))
+  }
+
+  /**
+   * Test for making sure that that symlinks are working, for fixing a but reported in glu
+   * (https://github.com/linkedin/glu/issues/165)
+   */
+  public void testSymlinks()
+  {
+    def topdir = fs.mkdirs('/topdir')
+    def topdir2 = fs.mkdirs('/topdir2')
+
+    assertEquals([], fs.ls(topdir))
+
+    def atxt = fs.saveContent(topdir.'a.txt', "a-content")
+
+    assertEquals([atxt], fs.ls(topdir))
+
+    def btxt = topdir2.'b.txt'
+
+    assertFalse(btxt.exists())
+
+    "ln -s ${atxt.file} ${btxt.file}".execute().waitFor()
+
+    assertEquals([atxt], fs.ls(topdir))
+    assertEquals([btxt], fs.ls(topdir2))
+
+    assertTrue(btxt.exists())
+    assertEquals("a-content", btxt.file.text)
+
   }
 }
