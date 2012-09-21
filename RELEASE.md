@@ -1,3 +1,7 @@
+1.8.1 (2012/09/20)
+------------------
+* fixed [bug #10](https://github.com/linkedin/linkedin-utils/issues/10): _FileSystem not handling symlinks properly_
+
 1.8.0 (2012/03/31)
 ------------------
 * implemented [ticket #6](https://github.com/linkedin/linkedin-utils/issues/6): _Using Jackson JSON (de)serializer_ (thanks for the help from Zoran @ LinkedIn)
