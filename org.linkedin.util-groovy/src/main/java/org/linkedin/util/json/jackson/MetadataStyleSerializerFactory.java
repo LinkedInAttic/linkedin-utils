@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 Yan Pujante
+ * Copyright (c) 2012-2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,7 +15,6 @@
  */
 package org.linkedin.util.json.jackson;
 
-import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -120,8 +119,7 @@ public class MetadataStyleSerializerFactory extends BeanSerializerFactory
   @Override
   @SuppressWarnings("unchecked")
   public JsonSerializer<Object> createSerializer(SerializerProvider prov,
-                                                 JavaType origType,
-                                                 BeanProperty property) throws JsonMappingException
+                                                 JavaType origType) throws JsonMappingException
   {
     JsonSerializer<Object> serializer =
       (JsonSerializer<Object>) SERIALIZERS.get(origType.getRawClass().getName());
@@ -130,7 +128,7 @@ public class MetadataStyleSerializerFactory extends BeanSerializerFactory
       return serializer;
 
     if(origType.isContainerType())
-      return super.createSerializer(prov, origType, property);
+      return super.createSerializer(prov, origType);
     else
       return ToStringSerializer.instance;
   }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2010 LinkedIn, Inc
- * Copyright (c) 2011 Yan Pujante
+ * Portions Copyright (c) 2011-2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,24 +18,22 @@
 spec = [
     name: 'linkedin-utils',
     group: 'org.linkedin',
-    version: '1.8.1',
+    version: '1.8.glu47.0',
 
     versions: [
-      groovy: '1.7.5',
-      jackson: '2.0.0',
-      slf4j: '1.5.8' // to be compatible with grails 1.3.5
+      groovy: '2.0.7',
+      jackson: '2.1.4',
+      slf4j: '1.6.2' // to be compatible with grails 2.0.7
     ],
 
-    // information about the build framework itself
-    build: [
-        type: "gradle",
-        version: "0.9",
-        uri: "http://gradle.artifactoryonline.com/gradle/distributions/gradle-0.9-all.zip",
-        commands: [
-            "snapshot": "gradle release",
-            "release": "gradle -Prelease=true release"
-        ]
+  // information about the build framework itself
+  build: [
+    type: "gradle",
+    commands: [
+      "snapshot": "gradlew release",
+      "release": "gradlew -Prelease=true release"
     ]
+  ]
 ]
 
 spec.scmUrl = "git@github.com:linkedin/${spec.name}.git"
@@ -44,12 +42,14 @@ spec.scmUrl = "git@github.com:linkedin/${spec.name}.git"
  * External dependencies
  */
 spec.external = [
-  ant: 'org.apache.ant:ant:1.8.1',
+  ant: 'org.apache.ant:ant:1.8.2',
   groovy: "org.codehaus.groovy:groovy:${spec.versions.groovy}",
+  groovyAnt: "org.codehaus.groovy:groovy-ant:${spec.versions.groovy}",
+  groovyTest: "org.codehaus.groovy:groovy-test:${spec.versions.groovy}",
   json: 'org.json:json:20090211',
   jacksoncore: "com.fasterxml.jackson.core:jackson-core:${spec.versions.jackson}",
   jacksondatabind: "com.fasterxml.jackson.core:jackson-databind:${spec.versions.jackson}",
-  junit: 'junit:junit:4.4',
+  junit: 'junit:junit:4.10',
   log4j: 'log4j:log4j:1.2.16',
   slf4j: "org.slf4j:slf4j-api:${spec.versions.slf4j}",
   slf4jLog4j: "org.slf4j:slf4j-log4j12:${spec.versions.slf4j}",

@@ -1,6 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
- * Portions Copyright (c) 2011 Yan Pujante
+ * Portions Copyright (c) 2011-2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -125,7 +125,7 @@ def class FileSystemImpl implements FileSystem, Destroyable
 
   Resource saveContent(file, String content)
   {
-    Resource resource = toResource(file, true)
+    Resource resource = toResourceWithParents(file, true)
 
     withOutputStream(resource.file) { fos ->
       fos.write(content.getBytes('UTF-8'))
@@ -141,7 +141,7 @@ def class FileSystemImpl implements FileSystem, Destroyable
 
   Resource serializeToFile(file, serializable)
   {
-    Resource resource = toResource(file, true)
+    Resource resource = toResourceWithParents(file, true)
 
     withObjectOutputStream(resource) { oos ->
       oos.writeObject(serializable)
@@ -406,15 +406,15 @@ def class FileSystemImpl implements FileSystem, Destroyable
 
   private File toFile(file, boolean createParents)
   {
-    return toResource(file, createParents).file
+    return toResourceWithParents(file, createParents).file
   }
 
   Resource toResource(file)
   {
-    return toResource(file, false)
+    return toResourceWithParents(file, false)
   }
 
-  private Resource toResource(file, boolean createParents)
+  private Resource toResourceWithParents(file, boolean createParents)
   {
     // first convert into a file
     file = GroovyIOUtils.toFile(file, tmpRoot.file)
