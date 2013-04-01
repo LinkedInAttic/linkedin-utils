@@ -1,3 +1,9 @@
+1.9.0 (2013/04/01)
+------------------
+* implemented [ticket #11](https://github.com/linkedin/linkedin-utils/issues/11): _Upgrade to latest versions_
+
+This version uses groovy 2.0.7 under the cover and contains a workaround for an issue (with this version of groovy) when using ``AntBuilder``.
+
 1.8.1 (2012/09/20)
 ------------------
 * fixed [bug #10](https://github.com/linkedin/linkedin-utils/issues/10): _FileSystem not handling symlinks properly_
