@@ -1,6 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
- * Portions Copyright (c) 2011 Yan Pujante
+ * Portions Copyright (c) 2011-2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,6 +20,9 @@ package org.linkedin.groovy.util.ant
 
 import org.apache.tools.ant.Project
 import org.apache.tools.ant.BuildException
+import org.apache.tools.ant.RuntimeConfigurable
+import org.apache.tools.ant.Target
+import org.apache.tools.ant.Task
 
 /**
  * Helper methods for ant
@@ -34,14 +37,14 @@ class AntUtils
    */
   static def withBuilder(Closure closure)
   {
-    AntBuilder builder = new AntBuilder()
+    AntBuilder6068 builder = new AntBuilder6068()
     // removes info messages...
     builder.project.buildListeners[0].messageOutputLevel = Project.MSG_WARN
     try
     {
       return closure(builder)
     }
-    catch (BuildException e)
+    catch(BuildException e)
     {
       if(e.cause)
         throw e.cause
@@ -50,13 +53,12 @@ class AntUtils
     }
   }
 
-
   /**
    * Creates the directory and parents of the provided directory. Returns dir.
    */
   static File mkdirs(File dir)
   {
-    AntUtils.withBuilder { ant -> ant.mkdir(dir: dir)}
+    AntUtils.withBuilder { ant -> ant.mkdir(dir: dir) }
     return dir
   }
 
