@@ -18,20 +18,20 @@
 spec = [
     name: 'linkedin-utils',
     group: 'org.linkedin',
-    version: '1.8.glu47.0',
+    version: '1.8.glu47.3',
 
     versions: [
       groovy: '2.0.7',
       jackson: '2.1.4',
-      slf4j: '1.6.2' // to be compatible with grails 2.0.7
+      slf4j: '1.6.2' // to be compatible with grails 2.2.1
     ],
 
   // information about the build framework itself
   build: [
     type: "gradle",
     commands: [
-      "snapshot": "gradlew release",
-      "release": "gradlew -Prelease=true release"
+      "snapshot": "gradlew xxx",
+      "release": "gradlew -Prelease=true xxx"
     ]
   ]
 ]
@@ -43,9 +43,7 @@ spec.scmUrl = "git@github.com:linkedin/${spec.name}.git"
  */
 spec.external = [
   ant: 'org.apache.ant:ant:1.8.2',
-  groovy: "org.codehaus.groovy:groovy:${spec.versions.groovy}",
-  groovyAnt: "org.codehaus.groovy:groovy-ant:${spec.versions.groovy}",
-  groovyTest: "org.codehaus.groovy:groovy-test:${spec.versions.groovy}",
+  groovy: "org.codehaus.groovy:groovy-all:${spec.versions.groovy}",
   json: 'org.json:json:20090211',
   jacksoncore: "com.fasterxml.jackson.core:jackson-core:${spec.versions.jackson}",
   jacksondatabind: "com.fasterxml.jackson.core:jackson-databind:${spec.versions.jackson}",

@@ -28,9 +28,7 @@ dependencies {
   compile spec.external.jacksoncore
   compile spec.external.jacksondatabind
   compile spec.external.groovy
-  compile spec.external.groovyAnt
 
   testCompile spec.external.junit
-  testCompile spec.external.groovyTest
   testRuntime spec.external.slf4jLog4j
 }

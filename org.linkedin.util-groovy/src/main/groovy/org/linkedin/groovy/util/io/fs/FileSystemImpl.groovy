@@ -378,7 +378,7 @@ def class FileSystemImpl implements FileSystem, Destroyable
   /**
    * Convenient call mainly used for testing purposes...
    */
-  public static FileSystem createTempFileSystem()
+  public static FileSystemImpl createTempFileSystem()
   {
     return new FileSystemImpl(AntUtils.tempFile(prefix: 'FileSystemImpl'))
   }

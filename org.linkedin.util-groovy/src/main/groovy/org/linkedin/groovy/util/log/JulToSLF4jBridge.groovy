@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2010 LinkedIn, Inc
+ * Portions Copyright (c) 2013 Yan Pujante
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,12 +31,15 @@ class JulToSLF4jBridge
    */
   synchronized static void installBridge()
   {
-    def rootLogger = LogManager.getLogManager().getLogger("")
+    if(!SLF4JBridgeHandler.isInstalled())
+    {
+      def rootLogger = LogManager.getLogManager().getLogger("")
 
-    rootLogger.handlers.each {
-      rootLogger.removeHandler(it)
+      rootLogger.handlers.each {
+        rootLogger.removeHandler(it)
+      }
+
+      rootLogger.addHandler(new SLF4JBridgeHandler())
     }
-
-    rootLogger.addHandler(new SLF4JBridgeHandler())
   }
 }
