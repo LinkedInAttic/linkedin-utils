@@ -1,3 +1,11 @@
+WARNING WARNING WARNING WARNING
+===============================
+
+This project is no longer maintained in this repository. To find the latest version of this project, check the [pongasoft/utils-misc](https://github.com/pongasoft/utils-misc) fork.
+
+WARNING WARNING WARNING WARNING
+===============================
+
 Introduction
 ============
 The project represents a set of utility classes that are used by other LinkedIn open 
